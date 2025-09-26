@@ -84,7 +84,12 @@ if(!verifyPassword){
 }
 
 const token = jwt.sign({firstName: user.firstName, email: user.email , password: user.password}, process.env.KEY, {expiresIn: '24h'})
-res.cookie('token', token, {httpOnly: true, maxAge: 3600000})
+res.cookie('token', token, {
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  path: '/',
+  maxAge: 3600000})
  return res.status(200).json({message:"login successful"})
 }
 
