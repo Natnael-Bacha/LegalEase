@@ -26,7 +26,7 @@ const CreateCase = () => {
 
   const verifyAuth = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/clientAuth/verifyUser', {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clientAuth/verifyUser`, {
         withCredentials: true
       });
       
@@ -62,7 +62,7 @@ const CreateCase = () => {
   const fetchAvailableTimes = async () => {
     setIsLoadingTimes(true);
     try {
-      const response = await axios.get('http://localhost:5001/availableDate/getAvailableDateForUser', {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/availableDate/getAvailableDateForUser`, {
          params: { lawyerId },
         withCredentials: true 
       });
@@ -149,7 +149,7 @@ const CreateCase = () => {
     setIsLoading(true);
     
     try {
-      const response = await axios.post('http://localhost:5001/cases/createCase', 
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/cases/createCase`, 
         {
           ...formData,
           lawyerId: lawyerId
@@ -197,7 +197,7 @@ const CreateCase = () => {
 
   const handleSignOut = async () => {
     try {
-      await axios.post('http://localhost:5001/clientAuth/logout');
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/clientAuth/logout`);
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

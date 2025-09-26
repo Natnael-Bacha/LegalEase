@@ -15,13 +15,13 @@ const DisplayCaseUser = () => {
   useEffect(() => {
     const fetchCases = async () => {
       try {
-        const verifyRes = await axios.get('http://localhost:5001/clientAuth/verifyUser', {
+        const verifyRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clientAuth/verifyUser`, {
           withCredentials: true
         });
 
         if (verifyRes.data.status) {
           try {
-            const casesRes = await axios.get('http://localhost:5001/cases/getUserCase', {
+            const casesRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/cases/getUserCase`, {
               withCredentials: true
             });
 
@@ -72,7 +72,7 @@ const DisplayCaseUser = () => {
 
   const handleSignOut = async () => {
     try {
-      await axios.get('http://localhost:5001/clientAuth/logout');
+      await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clientAuth/logout`);
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

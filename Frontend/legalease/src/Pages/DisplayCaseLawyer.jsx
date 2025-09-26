@@ -14,14 +14,14 @@ const DisplayCaseLawyer = () => {
   useEffect(() => {
     const fetchCases = async () => {
       try {
-        const verifyRes = await axios.get('http://localhost:5001/auth/verifyLawyer', {
+        const verifyRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/verifyLawyer`, {
           withCredentials: true
         });
 
         if (verifyRes.data.status) {
           console.log("Verification Success!");
           try {
-            const casesRes = await axios.get('http://localhost:5001/cases/getLawyerCase', {
+            const casesRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/cases/getLawyerCase`, {
               withCredentials: true
             });
 
@@ -74,7 +74,7 @@ const DisplayCaseLawyer = () => {
 
   const handleSignOut = async () => {
     try {
-      await axios.get('http://localhost:5001/lawyerAuth/logout');
+      await axios.get(`${import.meta.env.VITE_BACKEND_URL}/lawyerAuth/logout`);
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

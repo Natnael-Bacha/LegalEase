@@ -22,13 +22,13 @@ const UpdateLawyerProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('http://localhost:5001/auth/verifyLawyer', {
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/verifyLawyer`, {
           withCredentials: true
         });
 
         if (res.data.status) {
           try {
-            const profileRes = await axios.get('http://localhost:5001/lawyerProfile/getProfileById', {
+            const profileRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/lawyerProfile/getProfileById`, {
               withCredentials: true
             });
 
@@ -90,7 +90,7 @@ const UpdateLawyerProfile = () => {
     try {
       
       const res = await axios.put(
-        'http://localhost:5001/lawyerProfile/updateProfile',
+        `${import.meta.env.VITE_BACKEND_URL}/lawyerProfile/updateProfile`,
         formData,
         { withCredentials: true }
       );

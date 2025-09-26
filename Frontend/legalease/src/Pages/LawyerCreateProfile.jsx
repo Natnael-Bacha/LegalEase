@@ -50,7 +50,7 @@ const handleSubmit = async (e) => {
   e.preventDefault();
   
   try {
-    const response = await axios.post('http://localhost:5001/lawyerProfile/createProfile', formData);
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/lawyerProfile/createProfile`, formData);
     
     console.log('Response received:', response);
     

@@ -19,7 +19,7 @@ const CreateAvailableDate = () => {
   useEffect(() => {
     const verify = async () => {
       try {
-        const res = await axios.get('http://localhost:5001/auth/verifyLawyer', {
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/verifyLawyer`, {
           withCredentials: true
         });
         
@@ -53,7 +53,7 @@ const CreateAvailableDate = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5001/availableDate/setAvailableDate', formData, {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/availableDate/setAvailableDate`, formData, {
         withCredentials: true
       });
       

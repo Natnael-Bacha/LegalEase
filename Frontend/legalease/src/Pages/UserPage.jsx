@@ -11,13 +11,13 @@ const UserPage = () => {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const verifyRes = await axios.get('http://localhost:5001/clientAuth/verifyUser', {
+        const verifyRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clientAuth/verifyUser`, {
           withCredentials: true
         });
 
         if (verifyRes.data.status) {
           try {
-            const profileRes = await axios.get('http://localhost:5001/lawyerProfile/getProfile', {
+            const profileRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/lawyerProfile/getProfile`, {
               withCredentials: true
             });
 

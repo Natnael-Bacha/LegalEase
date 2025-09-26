@@ -25,7 +25,7 @@ const LawyerSignup = () => {
         return;
     }
     e.preventDefault();
-    axios.post('http://localhost:5001/auth/signup', formData).then(response=>{
+    axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/signup`, formData).then(response=>{
       if(response.status == 200){
         navigate('/lawyerSignin');
       }

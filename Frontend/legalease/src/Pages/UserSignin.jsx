@@ -28,7 +28,7 @@ const UserSignin = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    axios.post('http://localhost:5001/clientAuth/login', formData)
+    axios.post(`${import.meta.env.VITE_BACKEND_URL}/clientAuth/login`, formData)
     .then(response => {
       if (response.status === 200) {
         navigate('/userPage');

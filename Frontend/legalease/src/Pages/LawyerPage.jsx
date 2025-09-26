@@ -15,7 +15,7 @@ const LawyerDashboard = () => {
 
   const handleLogout = () => {
     try {
-      axios.get('http://localhost:5001/auth/logout').then(res => {
+      axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`).then(res => {
         if (res.status === 200) {
           navigate('/');
         }
@@ -32,7 +32,7 @@ const LawyerDashboard = () => {
   useEffect(() => {
     const verify = async () => {
       try {
-        const res = await axios.get('http://localhost:5001/auth/verifyLawyer', {
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/verifyLawyer`, {
           withCredentials: true
         });
 
@@ -43,11 +43,11 @@ const LawyerDashboard = () => {
         
             const [profileRes, statsRes] = await Promise.all([
               axios
-                .get('http://localhost:5001/lawyerProfile/getProfileById', {
+                .get(`${import.meta.env.VITE_BACKEND_URL}/lawyerProfile/getProfileById`, {
                   withCredentials: true
                 })
                 .catch(err => err.response), 
-              axios.get('http://localhost:5001/cases/getLawyerStats', {
+              axios.get(`${import.meta.env.VITE_BACKEND_URL}/cases/getLawyerStats`, {
                 withCredentials: true
               })
             ]);

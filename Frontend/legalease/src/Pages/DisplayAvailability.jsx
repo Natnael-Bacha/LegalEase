@@ -16,7 +16,7 @@ const DisplayAvailability = () => {
   const fetchAvailabilities = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5001/availableDate/getAvailableDate', 
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/availableDate/getAvailableDate`, 
         {
           withCredentials: true
         }
@@ -54,7 +54,7 @@ const DisplayAvailability = () => {
 
   const deleteAvailability = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:5001/availability/${id}`, {
+      const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/availability/${id}`, {
         withCredentials: true
       });
       

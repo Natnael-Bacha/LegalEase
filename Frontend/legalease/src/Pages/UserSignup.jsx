@@ -28,7 +28,7 @@ const UserSignup = () => {
       alert("Passwords do not match");
       return;
     }
-    axios.post('http://localhost:5001/clientAuth/signup', formData).then(response=>{
+    axios.post(`${import.meta.env.VITE_BACKEND_URL}/clientAuth/signup`, formData).then(response=>{
       if(response.status == 200){
         navigate('/userSignin');
       }
