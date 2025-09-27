@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format, parseISO, isToday, isTomorrow } from 'date-fns';
-
+import { Link } from 'react-router';
 const DisplayAvailability = () => {
   const [availabilities, setAvailabilities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -113,13 +113,16 @@ const DisplayAvailability = () => {
   return (
     <div className="availability-container">
       <div className="navigation-buttons">
+      <Link to={'/lawyerPage'}>
         <button 
           className="btn-back"
-          onClick={() => window.location.href = '/lawyerPage'}
+         
         >
+         
           <i className="fas fa-arrow-left"></i>
           Back to Dashboard
         </button>
+         </Link>
       </div>
 
       <div className="availability-header">
