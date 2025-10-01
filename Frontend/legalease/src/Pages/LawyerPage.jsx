@@ -40,7 +40,6 @@ const LawyerDashboard = () => {
           try {
             setIsLoading(true);
 
-        
             const [profileRes, statsRes] = await Promise.all([
               axios
                 .get(`${import.meta.env.VITE_BACKEND_URL}/lawyerProfile/getProfileById`, {
@@ -52,12 +51,10 @@ const LawyerDashboard = () => {
               })
             ]);
 
-
             if (statsRes?.data?.status) {
               setStats(statsRes.data.stats);
             }
 
-        
             if (profileRes && profileRes.status === 200) {
               setProfileData(profileRes.data);
               setProfileIsCreated(true);
@@ -107,138 +104,155 @@ const LawyerDashboard = () => {
       </header>
 
       <main className="dashboard-main">
-        <div className="welcome-section">
-          <h1>Welcome to Your Dashboard</h1>
-          <p>Manage your practice, clients, and cases all in one place</p>
-        </div>
-
         {isLoading ? (
           <div className="loading-container">
-            <PropagateLoader />
-            <p>Loading profile data...</p>
+            <div className="loading-content">
+              <div className="loading-animation">
+                <div className="loading-spinner">
+                  <div className="spinner-ring"></div>
+                  <div className="spinner-ring"></div>
+                  <div className="spinner-ring"></div>
+                  <div className="spinner-center"></div>
+                </div>
+                <div className="loading-text">
+                  <h2>Setting Up Your Dashboard</h2>
+                  <p>Loading your practice data and statistics...</p>
+                </div>
+                <div className="loading-progress">
+                  <div className="progress-bar">
+                    <div className="progress-fill"></div>
+                  </div>
+                  <span className="progress-text">Loading dashboard</span>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
-          <div className="dashboard-content">
-          
-            <div className="left-column">
-              {profileIsCreated ? (
-                <div className="profile-details">
-                  {profileData.profileImage && (
-                    <div className="profile-image">
-                      <img
-                        src={profileData.profileImage}
-                        alt="Profile"
-                        className="profile-img"
-                      />
+          <>
+            <div className="welcome-section">
+              <h1>Welcome to Your Dashboard</h1>
+              <p>Manage your practice, clients, and cases all in one place</p>
+            </div>
+
+            <div className="dashboard-content">
+              <div className="left-column">
+                {profileIsCreated ? (
+                  <div className="profile-details">
+                    {profileData.profileImage && (
+                      <div className="profile-image">
+                        <img
+                          src={profileData.profileImage}
+                          alt="Profile"
+                          className="profile-img"
+                        />
+                      </div>
+                    )}
+                    <h3>{profileData.fullName}</h3>
+                    <div className="profile-info-grid">
+                      <div className="info-item">
+                        <i className="fas fa-phone"></i>
+                        <span>{profileData.phoneNumber}</span>
+                      </div>
+                      <div className="info-item">
+                        <i className="fas fa-id-card"></i>
+                        <span>License: {profileData.licenseNumber}</span>
+                      </div>
+                      <div className="info-item">
+                        <i className="fas fa-briefcase"></i>
+                        <span>{profileData.YearsOfExperience} years experience</span>
+                      </div>
+                      <div className="info-item">
+                        <i className="fas fa-map-marker-alt"></i>
+                        <span>{profileData.currentWorkingLocation}</span>
+                      </div>
+                      <div className="info-item">
+                        <i className="fas fa-money-bill-wave"></i>
+                        <span>ETB {profileData.minPriceInETB} consultation fee</span>
+                      </div>
                     </div>
-                  )}
-                  <h3>{profileData.fullName}</h3>
-                  <div className="profile-info-grid">
-                    <div className="info-item">
-                      <i className="fas fa-phone"></i>
-                      <span>{profileData.phoneNumber}</span>
-                    </div>
-                    <div className="info-item">
-                      <i className="fas fa-id-card"></i>
-                      <span>License: {profileData.licenseNumber}</span>
-                    </div>
-                    <div className="info-item">
-                      <i className="fas fa-briefcase"></i>
-                      <span>{profileData.YearsOfExperience} years experience</span>
-                    </div>
-                    <div className="info-item">
-                      <i className="fas fa-map-marker-alt"></i>
-                      <span>{profileData.currentWorkingLocation}</span>
-                    </div>
-                    <div className="info-item">
-                      <i className="fas fa-money-bill-wave"></i>
-                      <span>ETB {profileData.minPriceInETB} consultation fee</span>
-                    </div>
-                  </div>
-                  <Link to={'/updateLawyerProfile'}>
+                    <Link to={'/updateLawyerProfile'}>
                       <button className="edit-profile-btn">
-                    <i className="fas fa-edit"></i> Edit Profile
-                  </button></Link>
-              
-                </div>
-              ) : (
-                <div className="profile-card">
-                  <h2>Your Profile</h2>
-                  <div className="profile-image-container">
-                    <div className="empty-image-placeholder">
-                      <i className="fas fa-user"></i>
-                      <p>No profile image</p>
+                        <i className="fas fa-edit"></i> Edit Profile
+                      </button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="profile-card">
+                    <h2>Your Profile</h2>
+                    <div className="profile-image-container">
+                      <div className="empty-image-placeholder">
+                        <i className="fas fa-user"></i>
+                        <p>No profile image</p>
+                      </div>
+                    </div>
+                    <button
+                      className="create-profile-btn"
+                      onClick={handleCreateProfile}
+                    >
+                      <i className="fas fa-plus"></i> Create Profile
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="right-column">
+                <div className="dashboard-stats">
+                  <div className="stat-card">
+                    <div className="stat-icon">
+                      <i className="fas fa-briefcase"></i>
+                    </div>
+                    <div className="stat-info">
+                      <h3>Active Cases</h3>
+                      <p className="stat-number">{stats.cases}</p>
                     </div>
                   </div>
-                  <button
-                    className="create-profile-btn"
-                    onClick={handleCreateProfile}
-                  >
-                    <i className="fas fa-plus"></i> Create Profile
-                  </button>
-                </div>
-              )}
-            </div>
 
-          
-            <div className="right-column">
-              <div className="dashboard-stats">
-                <div className="stat-card">
-                  <div className="stat-icon">
-                    <i className="fas fa-briefcase"></i>
+                  <div className="stat-card">
+                    <div className="stat-icon">
+                      <i className="fas fa-users"></i>
+                    </div>
+                    <div className="stat-info">
+                      <h3>Clients</h3>
+                      <p className="stat-number">{stats.clients}</p>
+                    </div>
                   </div>
-                  <div className="stat-info">
-                    <h3>Active Cases</h3>
-                    <p className="stat-number">{stats.cases}</p>
-                  </div>
-                </div>
 
-                <div className="stat-card">
-                  <div className="stat-icon">
-                    <i className="fas fa-users"></i>
+                  <div className="stat-card">
+                    <div className="stat-icon">
+                      <i className="fas fa-calendar-alt"></i>
+                    </div>
+                    <div className="stat-info">
+                      <h3>Upcoming Hearings</h3>
+                      <p className="stat-number">0</p>
+                    </div>
                   </div>
-                  <div className="stat-info">
-                    <h3>Clients</h3>
-                    <p className="stat-number">{stats.clients}</p>
-                  </div>
-                </div>
 
-                <div className="stat-card">
-                  <div className="stat-icon">
-                    <i className="fas fa-calendar-alt"></i>
-                  </div>
-                  <div className="stat-info">
-                    <h3>Upcoming Hearings</h3>
-                    <p className="stat-number">0</p>
+                  <div className="stat-card">
+                    <div className="stat-icon">
+                      <i className="fas fa-file-contract"></i>
+                    </div>
+                    <div className="stat-info">
+                      <h3>Documents</h3>
+                      <p className="stat-number">0</p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="stat-card">
-                  <div className="stat-icon">
-                    <i className="fas fa-file-contract"></i>
-                  </div>
-                  <div className="stat-info">
-                    <h3>Documents</h3>
-                    <p className="stat-number">0</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="recent-activity">
-                <h2>Recent Activity</h2>
-                <div className="activity-card">
-                  <div className="activity-item">
-                    <i className="fas fa-info-circle"></i>
-                    <p>No recent activity</p>
+                <div className="recent-activity">
+                  <h2>Recent Activity</h2>
+                  <div className="activity-card">
+                    <div className="activity-item">
+                      <i className="fas fa-info-circle"></i>
+                      <p>No recent activity</p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </>
         )}
       </main>
 
-      {/* Add CSS styles */}
       <style jsx>{`
         .lawyer-dashboard-container {
           min-height: 100vh;
@@ -467,17 +481,127 @@ const LawyerDashboard = () => {
           color: #6c757d;
         }
 
+        /* Loading Styles */
         .loading-container {
           display: flex;
-          flex-direction: column;
-          align-items: center;
           justify-content: center;
-          padding: 4rem 2rem;
+          align-items: center;
+          min-height: 400px;
+          width: 100%;
         }
 
-        .loading-container p {
-          margin-top: 1rem;
+        .loading-content {
+          text-align: center;
+          max-width: 500px;
+          width: 100%;
+        }
+
+        .loading-animation {
+          background: white;
+          padding: 3rem 2rem;
+          border-radius: 16px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .loading-spinner {
+          position: relative;
+          width: 80px;
+          height: 80px;
+          margin: 0 auto 2rem;
+        }
+
+        .spinner-ring {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border: 3px solid transparent;
+          border-top: 3px solid #2c3e50;
+          border-radius: 50%;
+          animation: spin 1.5s linear infinite;
+        }
+
+        .spinner-ring:nth-child(1) {
+          animation-delay: 0s;
+          border-top-color: #2c3e50;
+        }
+
+        .spinner-ring:nth-child(2) {
+          animation-delay: 0.5s;
+          border-top-color: #4a6580;
+          width: 70%;
+          height: 70%;
+          top: 15%;
+          left: 15%;
+        }
+
+        .spinner-ring:nth-child(3) {
+          animation-delay: 1s;
+          border-top-color: #3498db;
+          width: 50%;
+          height: 50%;
+          top: 25%;
+          left: 25%;
+        }
+
+        .spinner-center {
+          position: absolute;
+          width: 20px;
+          height: 20px;
+          background: #2c3e50;
+          border-radius: 50%;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        .loading-text h2 {
+          color: #2c3e50;
+          margin-bottom: 0.5rem;
+          font-size: 1.5rem;
+          font-weight: 600;
+        }
+
+        .loading-text p {
+          color: #7b8a9b;
+          font-size: 1rem;
+          margin-bottom: 2rem;
+        }
+
+        .loading-progress {
+          margin-top: 2rem;
+        }
+
+        .progress-bar {
+          width: 100%;
+          height: 6px;
+          background: #e9ecef;
+          border-radius: 3px;
+          overflow: hidden;
+          margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #2c3e50, #4a6580);
+          border-radius: 3px;
+          animation: progress 2s ease-in-out infinite;
+        }
+
+        @keyframes progress {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+
+        .progress-text {
           color: #6c757d;
+          font-size: 0.9rem;
+          font-weight: 500;
         }
 
         .profile-details {
@@ -578,9 +702,22 @@ const LawyerDashboard = () => {
             width: 100%;
             padding-bottom: 0.5rem;
           }
+
+          .loading-animation {
+            padding: 2rem 1rem;
+          }
+
+          .loading-text h2 {
+            font-size: 1.3rem;
+          }
+
+          .loading-spinner {
+            width: 60px;
+            height: 60px;
+          }
         }
       `}</style>
-=
+
       <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"

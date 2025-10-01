@@ -112,8 +112,52 @@ const UpdateLawyerProfile = () => {
   if (isLoading && !profileData) {
     return (
       <div className="loading-container">
-        <PropagateLoader />
-        <p>Loading profile data...</p>
+        <div className="loading-content">
+          <div className="loading-spinner">
+            <PropagateLoader size={15} color={"#2c3e50"} />
+          </div>
+          <h2>Loading Your Profile</h2>
+          <p>Please wait while we retrieve your profile information...</p>
+        </div>
+        
+        <style jsx>{`
+          .loading-container {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          }
+          
+          .loading-content {
+            text-align: center;
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+          }
+          
+          .loading-spinner {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+          }
+          
+          .loading-content h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+          }
+          
+          .loading-content p {
+            color: #7b8a9b;
+            font-size: 1.1rem;
+            line-height: 1.5;
+          }
+        `}</style>
       </div>
     );
   }

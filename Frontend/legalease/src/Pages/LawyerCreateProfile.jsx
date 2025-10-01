@@ -16,6 +16,7 @@ const LawyerCreateProfile = () => {
   
   const [imagePreview, setImagePreview] = useState(null);
   const [currentStep, setCurrentStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = async(e) => {
@@ -48,6 +49,7 @@ const LawyerCreateProfile = () => {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
+  setIsLoading(true);
   
   try {
     const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/lawyerProfile/createProfile`, formData);
@@ -62,7 +64,8 @@ const handleSubmit = async (e) => {
     }
   } catch (error) {
     console.error('Error creating profile:', error);
- 
+  } finally {
+    setIsLoading(false);
   }
 };
 
@@ -136,6 +139,7 @@ const handleSubmit = async (e) => {
                     onChange={handleChange}
                     required
                     placeholder="Enter your full legal name"
+                    disabled={isLoading}
                   />
                 </div>
                 
@@ -149,6 +153,7 @@ const handleSubmit = async (e) => {
                     onChange={handleChange}
                     required
                     placeholder="+251 XXX XXX XXX"
+                    disabled={isLoading}
                   />
                 </div>
                 
@@ -162,11 +167,12 @@ const handleSubmit = async (e) => {
                     onChange={handleChange}
                     required
                     placeholder="City or region where you practice"
+                    disabled={isLoading}
                   />
                 </div>
                 
                 <div className="form-navigation">
-                  <button type="button" className="next-btn" onClick={nextStep}>
+                  <button type="button" className="next-btn" onClick={nextStep} disabled={isLoading}>
                     Next <i className="fas fa-arrow-right"></i>
                   </button>
                 </div>
@@ -188,6 +194,7 @@ const handleSubmit = async (e) => {
                     onChange={handleChange}
                     required
                     placeholder="Your bar association license number"
+                    disabled={isLoading}
                   />
                 </div>
                 
@@ -202,6 +209,7 @@ const handleSubmit = async (e) => {
                     min="0"
                     required
                     placeholder="Number of years practicing law"
+                    disabled={isLoading}
                   />
                 </div>
                 
@@ -216,14 +224,15 @@ const handleSubmit = async (e) => {
                     min="0"
                     required
                     placeholder="Your minimum fee for consultation"
+                    disabled={isLoading}
                   />
                 </div>
                 
                 <div className="form-navigation">
-                  <button type="button" className="back-btn" onClick={prevStep}>
+                  <button type="button" className="back-btn" onClick={prevStep} disabled={isLoading}>
                     <i className="fas fa-arrow-left"></i> Back
                   </button>
-                  <button type="button" className="next-btn" onClick={nextStep}>
+                  <button type="button" className="next-btn" onClick={nextStep} disabled={isLoading}>
                     Next <i className="fas fa-arrow-right"></i>
                   </button>
                 </div>
@@ -248,7 +257,7 @@ const handleSubmit = async (e) => {
                       )}
                     </div>
                     <div className="upload-controls">
-                      <label htmlFor="profileImage" className="upload-btn">
+                      <label htmlFor="profileImage" className={`upload-btn ${isLoading ? 'disabled' : ''}`}>
                         Choose Image
                       </label>
                       <input
@@ -259,6 +268,7 @@ const handleSubmit = async (e) => {
                         accept="image/*"
                         required
                         style={{display: 'none'}}
+                        disabled={isLoading}
                       />
                     </div>
                   </div>
@@ -275,11 +285,24 @@ const handleSubmit = async (e) => {
                 </div>
                 
                 <div className="form-navigation">
-                  <button type="button" className="back-btn" onClick={prevStep}>
+                  <button type="button" className="back-btn" onClick={prevStep} disabled={isLoading}>
                     <i className="fas fa-arrow-left"></i> Back
                   </button>
-                  <button type="submit" className="submit-btn">
-                    Complete Profile <i className="fas fa-check"></i>
+                  <button 
+                    type="submit" 
+                    className={`submit-btn ${isLoading ? 'loading' : ''}`}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <i className="fas fa-spinner fa-spin"></i>
+                        Creating Profile...
+                      </>
+                    ) : (
+                      <>
+                        Complete Profile <i className="fas fa-check"></i>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -288,7 +311,6 @@ const handleSubmit = async (e) => {
         </div>
       </div>
       
- 
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
       
       <style jsx>{`
@@ -487,6 +509,12 @@ const handleSubmit = async (e) => {
           box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
         }
         
+        .input-group input:disabled {
+          background-color: #f5f5f5;
+          cursor: not-allowed;
+          opacity: 0.7;
+        }
+        
         .image-upload-section {
           margin-bottom: 25px;
         }
@@ -536,12 +564,18 @@ const handleSubmit = async (e) => {
           border-radius: 6px;
           cursor: pointer;
           font-weight: 500;
-          transition: background 0.3s;
+          transition: all 0.3s;
           display: inline-block;
         }
         
-        .upload-btn:hover {
+        .upload-btn:hover:not(.disabled) {
           background: #2980b9;
+        }
+        
+        .upload-btn.disabled {
+          background: #bdc3c7;
+          cursor: not-allowed;
+          opacity: 0.7;
         }
         
         .upload-tips {
@@ -580,6 +614,7 @@ const handleSubmit = async (e) => {
           transition: all 0.3s;
           display: flex;
           align-items: center;
+          gap: 8px;
         }
         
         .back-btn {
@@ -588,7 +623,7 @@ const handleSubmit = async (e) => {
           border: 1px solid #ddd;
         }
         
-        .back-btn:hover {
+        .back-btn:hover:not(:disabled) {
           background: #e0e0e0;
         }
         
@@ -598,12 +633,28 @@ const handleSubmit = async (e) => {
           border: none;
         }
         
-        .next-btn:hover, .submit-btn:hover {
+        .next-btn:hover:not(:disabled), .submit-btn:hover:not(:disabled) {
           background: #2980b9;
+          transform: translateY(-1px);
         }
         
-        .back-btn i, .next-btn i, .submit-btn i {
-          margin: 0 5px;
+        .back-btn:disabled, .next-btn:disabled, .submit-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+        
+        .submit-btn.loading {
+          background: #6c757d;
+        }
+        
+        .fa-spin {
+          animation: fa-spin 1s infinite linear;
+        }
+        
+        @keyframes fa-spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
         
         @media (max-width: 768px) {

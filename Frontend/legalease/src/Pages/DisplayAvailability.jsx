@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format, parseISO, isToday, isTomorrow } from 'date-fns';
 import { Link } from 'react-router';
+
 const DisplayAvailability = () => {
   const [availabilities, setAvailabilities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,7 +24,6 @@ const DisplayAvailability = () => {
       );
       
       if (response.status === 200) {
-
         const filteredAvailabilities = showAll 
           ? response.data 
           : response.data.filter(avail => {
@@ -59,7 +59,6 @@ const DisplayAvailability = () => {
       });
       
       if (response.status === 200) {
-     
         setAvailabilities(prev => prev.filter(a => a._id !== id));
       }
     } catch (error) {
@@ -100,29 +99,18 @@ const DisplayAvailability = () => {
   };
 
   if (loading) {
-    return (
-      <div className="availability-container">
-        <div className="loading">
-          <div className="spinner"></div>
-          <p>Loading your availability...</p>
-        </div>
-      </div>
-    );
+    return <LoadingAvailability />;
   }
 
   return (
     <div className="availability-container">
       <div className="navigation-buttons">
-      <Link to={'/lawyerPage'}>
-        <button 
-          className="btn-back"
-         
-        >
-         
-          <i className="fas fa-arrow-left"></i>
-          Back to Dashboard
-        </button>
-         </Link>
+        <Link to={'/lawyerPage'}>
+          <button className="btn-back">
+            <i className="fas fa-arrow-left"></i>
+            Back to Dashboard
+          </button>
+        </Link>
       </div>
 
       <div className="availability-header">
@@ -130,13 +118,12 @@ const DisplayAvailability = () => {
           <h2>Your Availability Schedule</h2>
           <p>Manage your available time slots for client appointments</p>
         </div>
-        <button 
-          className="btn-primary"
-          onClick={() => window.location.href = '/createAvailability'}
-        >
-          <i className="fas fa-plus"></i>
-          Add Time Slot
-        </button>
+        <Link to={'/createAvailability'}>
+          <button className="btn-primary">
+            <i className="fas fa-plus"></i>
+            Add Time Slot
+          </button>
+        </Link>
       </div>
 
       {error && <div className="error-message">{error}</div>}
@@ -191,13 +178,12 @@ const DisplayAvailability = () => {
           </div>
           <h3>No availability set {!showAll ? 'for this date' : ''}</h3>
           <p>Add your available time slots to start receiving appointments</p>
-          <button 
-            className="btn-primary"
-            onClick={() => window.location.href = '/createAvailability'}
-          >
-            <i className="fas fa-plus"></i>
-            Create Your First Availability
-          </button>
+          <Link to={'/createAvailability'}>
+            <button className="btn-primary">
+              <i className="fas fa-plus"></i>
+              Create Your First Availability
+            </button>
+          </Link>
         </div>
       ) : (
         <div className="schedule-container">
@@ -677,21 +663,16 @@ const TimeSlot = ({ availability, onDelete }) => {
   const getColorForTime = (startTime) => {
     try {
       const hour = parseInt(startTime.split(':')[0]);
-      
 
       if (hour >= 6 && hour < 12) {
         return '#4a6580';
-      }
-      
-      else if (hour >= 12 && hour < 17) {
+      } else if (hour >= 12 && hour < 17) {
         return '#2e7d32';
-      }
-
-      else {
+      } else {
         return '#6a1b9a';
       }
     } catch (error) {
-      return '#4a6580'; 
+      return '#4a6580';
     }
   };
 
@@ -849,6 +830,312 @@ const TimeSlot = ({ availability, onDelete }) => {
   );
 };
 
+const LoadingAvailability = () => {
+  return (
+    <div className="availability-container">
+      <div className="navigation-buttons">
+        <button className="btn-back" disabled>
+          <i className="fas fa-arrow-left"></i>
+          Back to Dashboard
+        </button>
+      </div>
+
+      <div className="availability-header">
+        <div className="header-content">
+          <h2>Your Availability Schedule</h2>
+          <p>Manage your available time slots for client appointments</p>
+        </div>
+        <button className="btn-primary" disabled>
+          <i className="fas fa-plus"></i>
+          Add Time Slot
+        </button>
+      </div>
+
+      <div className="controls-section">
+        <div className="date-filter">
+          <div className="filter-header">
+            <i className="fas fa-filter"></i>
+            <span>Filter Options</span>
+          </div>
+          <div className="filter-controls">
+            <div className="date-input-group">
+              <label htmlFor="date-picker">Select Date:</label>
+              <input
+                id="date-picker"
+                type="date"
+                disabled
+              />
+            </div>
+            <div className="toggle-group">
+              <label className="toggle-label">
+                <input
+                  type="checkbox"
+                  disabled
+                />
+                <span className="toggle-slider"></span>
+                Show All Dates
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div className="stats-card">
+          <div className="stat-item">
+            <div className="stat-number">-</div>
+            <div className="stat-label">Total Slots</div>
+          </div>
+          <div className="stat-item">
+            <div className="stat-number">-</div>
+            <div className="stat-label">Days with Availability</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="loading">
+        <div className="spinner"></div>
+        <h3>Loading Your Availability...</h3>
+        <p>Please wait while we fetch your schedule information</p>
+      </div>
+
+      <style jsx>{`
+        .availability-container {
+          padding: 2rem;
+          max-width: 1400px;
+          margin: 0 auto;
+          background-color: #f8fafc;
+          min-height: 100vh;
+        }
+
+        .navigation-buttons {
+          margin-bottom: 1.5rem;
+        }
+
+        .btn-back {
+          background: none;
+          border: 1px solid #d1d5db;
+          color: #9ca3af;
+          padding: 0.6rem 1.2rem;
+          border-radius: 8px;
+          font-size: 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-weight: 500;
+          opacity: 0.7;
+        }
+
+        .availability-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 2rem;
+          background: white;
+          padding: 1.5rem;
+          border-radius: 12px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-content h2 {
+          color: #2c3e50;
+          font-size: 1.8rem;
+          margin: 0 0 0.5rem 0;
+          font-weight: 700;
+        }
+
+        .header-content p {
+          color: #64748b;
+          margin: 0;
+          font-size: 1rem;
+        }
+
+        .btn-primary {
+          background: #e2e8f0;
+          color: #9ca3af;
+          border: none;
+          padding: 0.8rem 1.5rem;
+          border-radius: 8px;
+          font-size: 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-weight: 600;
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+
+        .controls-section {
+          display: grid;
+          grid-template-columns: 1fr auto;
+          gap: 1.5rem;
+          margin-bottom: 2rem;
+        }
+
+        .date-filter {
+          background: white;
+          padding: 1.5rem;
+          border-radius: 12px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+          color: #9ca3af;
+          font-weight: 600;
+        }
+
+        .filter-controls {
+          display: flex;
+          gap: 1.5rem;
+          align-items: flex-end;
+          flex-wrap: wrap;
+        }
+
+        .date-input-group {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .date-input-group label {
+          font-weight: 500;
+          color: #9ca3af;
+          font-size: 0.9rem;
+        }
+
+        .date-input-group input {
+          padding: 0.6rem;
+          border: 1px solid #e2e8f0;
+          border-radius: 6px;
+          font-size: 1rem;
+          background: #f8fafc;
+          color: #9ca3af;
+        }
+
+        .toggle-group {
+          display: flex;
+          align-items: center;
+        }
+
+        .toggle-label {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          font-weight: 500;
+          color: #9ca3af;
+          position: relative;
+        }
+
+        .toggle-slider {
+          width: 42px;
+          height: 22px;
+          background-color: #e2e8f0;
+          border-radius: 34px;
+          position: relative;
+        }
+
+        .stats-card {
+          background: white;
+          padding: 1.5rem;
+          border-radius: 12px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+          display: flex;
+          gap: 2rem;
+          min-width: 250px;
+        }
+
+        .stat-item {
+          text-align: center;
+        }
+
+        .stat-number {
+          font-size: 1.8rem;
+          font-weight: 700;
+          color: #e2e8f0;
+          margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+          font-size: 0.85rem;
+          color: #9ca3af;
+          font-weight: 500;
+        }
+
+        .loading {
+          text-align: center;
+          padding: 3rem;
+          color: #64748b;
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .loading .spinner {
+          width: 40px;
+          height: 40px;
+          border: 4px solid #e2e8f0;
+          border-top: 4px solid #4a6580;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 1rem;
+        }
+
+        .loading h3 {
+          color: #4a6580;
+          margin-bottom: 0.5rem;
+          font-size: 1.5rem;
+        }
+
+        .loading p {
+          color: #64748b;
+          font-size: 1rem;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+          .controls-section {
+            grid-template-columns: 1fr;
+          }
+          
+          .stats-card {
+            justify-content: space-around;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .availability-container {
+            padding: 1rem;
+          }
+          
+          .availability-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+          }
+          
+          .filter-controls {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          
+          .stats-card {
+            flex-direction: column;
+            gap: 1rem;
+            min-width: auto;
+          }
+        }
+      `}</style>
+      
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    </div>
+  );
+};
 
 const calculateDuration = (startTime, endTime) => {
   try {

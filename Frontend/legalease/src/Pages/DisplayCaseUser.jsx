@@ -25,10 +25,12 @@ const DisplayCaseUser = () => {
               withCredentials: true
             });
 
-            if (casesRes.data.status) {
+            if (casesRes.data.status && casesRes.data.cases && casesRes.data.cases.length > 0) {
               setCases(casesRes.data.cases);
+              setError('');
             } else {
-              setError("No cases found");
+              setCases([]);
+              setError('');
             }
           } catch (error) {
             console.error("Error fetching cases:", error);
@@ -123,7 +125,6 @@ const DisplayCaseUser = () => {
   }
 };
 
-
   const getFileIcon = (fileType) => {
     if (fileType?.includes('pdf')) return 'fas fa-file-pdf';
     if (fileType?.includes('image')) return 'fas fa-file-image';
@@ -199,32 +200,6 @@ const DisplayCaseUser = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="cases-container">
-        <div className="loading-container">
-          <PropagateLoader color="#4a6580" />
-          <p>Loading your cases...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="cases-container">
-        <div className="error-container">
-          <i className="fas fa-exclamation-triangle"></i>
-          <h2>Error Loading Cases</h2>
-          <p>{error}</p>
-          <button className="retry-btn" onClick={() => window.location.reload()}>
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="cases-container">
       <header className="dashboard-header">
@@ -243,126 +218,172 @@ const DisplayCaseUser = () => {
              <Link to={'/futureWork'}><button className="nav-item ">Future Work</button></Link>
           </nav>
           <button className="sign-out-btn" onClick={handleSignOut}>
-            <i className="fas fa-sign-out-alt"></i> Sign Out
+            <i className="fas fa-sign-out-alt"></i> Logout
           </button>
         </div>
       </header>
 
       <main className="cases-main-content">
-        <div className="cases-header">
-          <h1>My Legal Cases</h1>
-          <p>Track the status of all your legal matters in one place</p>
-          <button 
-            className="create-case-btn"
-            onClick={() => navigate('/createCase')}
-          >
-            <i className="fas fa-plus"></i> Create New Case
-          </button>
-        </div>
-
-        {cases.length === 0 ? (
-          <div className="no-cases">
-            <i className="fas fa-folder-open"></i>
-            <h3>No Cases Yet</h3>
-            <p>You haven't created any cases yet. Get started by selecting a lawyer.</p>
-            <button 
-              className="find-lawyer-btn"
-              onClick={() => navigate('/user')}
-            >
-              Find a Lawyer
+        {loading ? (
+          <div className="loading-container">
+            <div className="loading-content">
+              <div className="loading-animation">
+                <div className="loading-spinner">
+                  <div className="spinner-ring"></div>
+                  <div className="spinner-ring"></div>
+                  <div className="spinner-ring"></div>
+                  <div className="spinner-center"></div>
+                </div>
+                <div className="loading-text">
+                  <h2>Loading Your Legal Cases</h2>
+                  <p>Retrieving your case information and documents...</p>
+                </div>
+                <div className="loading-progress">
+                  <div className="progress-bar">
+                    <div className="progress-fill"></div>
+                  </div>
+                  <span className="progress-text">Loading case details</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="error-container">
+            <i className="fas fa-exclamation-triangle"></i>
+            <h2>Error Loading Cases</h2>
+            <p>{error}</p>
+            <button className="retry-btn" onClick={() => window.location.reload()}>
+              Try Again
             </button>
           </div>
         ) : (
-          <div className="cases-grid">
-            {cases.map((caseItem, index) => (
-              <div key={caseItem._id || index} className="case-card">
-                <div className="case-header">
-                  <h3>{caseItem.caseTitle}</h3>
-                  {getStatusBadge(caseItem.status)}
+          <>
+            <div className="cases-header">
+              <h1>My Legal Cases</h1>
+              <p>Track the status of all your legal matters in one place</p>
+              <button 
+                className="create-case-btn"
+                onClick={() => navigate('/createCase')}
+              >
+                <i className="fas fa-plus"></i> Create New Case
+              </button>
+            </div>
+
+            {cases.length === 0 ? (
+              <div className="no-cases">
+                <div className="no-cases-illustration">
+                  <i className="fas fa-folder-open"></i>
                 </div>
-                
-                <div className="case-type">
-                  <i className="fas fa-tag"></i>
-                  <span>{caseItem.caseType}</span>
-                </div>
-                
-                <div className="case-description">
-                  <p>{caseItem.caseDiscription}</p>
-                </div>
-                
-                {caseItem.caseFile && (
-                  <div className="file-attachment">
-                    <div className="file-preview">
-                      <i className={getFileIcon(caseItem.caseFileType)}></i>
-                      <div className="file-info">
-                        <span className="file-type">
-                          {getFileTypeName(caseItem.caseFileType)}
-                        </span>
-                        <span className="file-size">
-                          {Math.round(caseItem.caseFile.length / 1024)} KB
-                        </span>
-                      </div>
-                      <button 
-                        className="download-icon-btn"
-                        onClick={() => downloadFile(caseItem.caseFile, `case-file-${caseItem.caseTitle}`, caseItem.caseFileType)}
-                        title="Download file"
-                      >
-                        <i className="fas fa-download"></i>
-                      </button>
-                    </div>
-                  </div>
-                )}
-                   
-                
-                <div className="case-details">
-                  <div className="detail-row">
-                    <div className="detail-item">
-                      <i className="fas fa-user-graduate"></i>
-                      <div className="detail-content">
-                        <span className="detail-label">Lawyer</span>
-                        <span className="detail-value">
-                          {caseItem.lawyer?.fullName || 'Not assigned'}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="detail-item">
-                      <i className="fas fa-calendar-alt"></i>
-                      <div className="detail-content">
-                        <span className="detail-label">Created</span>
-                        <span className="detail-value">
-                          {formatDate(caseItem.createdAt)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {caseItem.appointmentTime && (
-                    <div className="detail-item full-width">
-                      <i className="fas fa-clock"></i>
-                      <div className="detail-content">
-                        <span className="detail-label">Appointment</span>
-                        <span className="detail-value">
-                          {caseItem.appointmentTime.availableDate ? 
-                            formatDate(caseItem.appointmentTime.availableDate) : 
-                            'Scheduled'
-                          }
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="case-actions">
+                <h3>No Cases Yet</h3>
+                <p>You haven't created any legal cases yet. Start by selecting a lawyer to handle your case.</p>
+                <div className="no-cases-actions">
                   <button 
-                    className="action-btn view-btn"
-                    onClick={() => handleViewDetails(caseItem)}>
-                    <i className="fas fa-eye"></i> View Details
+                    className="find-lawyer-btn"
+                    onClick={() => navigate('/userPage')}
+                  >
+                    <i className="fas fa-search"></i> Find a Lawyer
+                  </button>
+                  <button 
+                    className="learn-more-btn"
+                    onClick={() => navigate('/futureWork')}
+                  >
+                    <i className="fas fa-info-circle"></i> Learn More
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
+            ) : (
+              <div className="cases-grid">
+                {cases.map((caseItem, index) => (
+                  <div key={caseItem._id || index} className="case-card">
+                    <div className="case-header">
+                      <h3>{caseItem.caseTitle}</h3>
+                      {getStatusBadge(caseItem.status)}
+                    </div>
+                    
+                    <div className="case-type">
+                      <i className="fas fa-tag"></i>
+                      <span>{caseItem.caseType}</span>
+                    </div>
+                    
+                    <div className="case-description">
+                      <p>{caseItem.caseDiscription}</p>
+                    </div>
+                    
+                    {caseItem.caseFile && (
+                      <div className="file-attachment">
+                        <div className="file-preview">
+                          <i className={getFileIcon(caseItem.caseFileType)}></i>
+                          <div className="file-info">
+                            <span className="file-type">
+                              {getFileTypeName(caseItem.caseFileType)}
+                            </span>
+                            <span className="file-size">
+                              {Math.round(caseItem.caseFile.length / 1024)} KB
+                            </span>
+                          </div>
+                          <button 
+                            className="download-icon-btn"
+                            onClick={() => downloadFile(caseItem.caseFile, `case-file-${caseItem.caseTitle}`, caseItem.caseFileType)}
+                            title="Download file"
+                          >
+                            <i className="fas fa-download"></i>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                       
+                    
+                    <div className="case-details">
+                      <div className="detail-row">
+                        <div className="detail-item">
+                          <i className="fas fa-user-graduate"></i>
+                          <div className="detail-content">
+                            <span className="detail-label">Lawyer</span>
+                            <span className="detail-value">
+                              {caseItem.lawyer?.fullName || 'Not assigned'}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="detail-item">
+                          <i className="fas fa-calendar-alt"></i>
+                          <div className="detail-content">
+                            <span className="detail-label">Created</span>
+                            <span className="detail-value">
+                              {formatDate(caseItem.createdAt)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {caseItem.appointmentTime && (
+                        <div className="detail-item full-width">
+                          <i className="fas fa-clock"></i>
+                          <div className="detail-content">
+                            <span className="detail-label">Appointment</span>
+                            <span className="detail-value">
+                              {caseItem.appointmentTime.availableDate ? 
+                                formatDate(caseItem.appointmentTime.availableDate) : 
+                                'Scheduled'
+                              }
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="case-actions">
+                      <button 
+                        className="action-btn view-btn"
+                        onClick={() => handleViewDetails(caseItem)}>
+                        <i className="fas fa-eye"></i> View Details
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </main>
 
@@ -384,8 +405,6 @@ const DisplayCaseUser = () => {
                     <span className="detail-label">Case Type</span>
                     <span className="detail-value">{selectedCase.caseType}</span>
                   </div>
-                  
-      
                   
                   <div className="detail-item">
                     <span className="detail-label">Created On</span>
@@ -453,7 +472,6 @@ const DisplayCaseUser = () => {
           background-color: #f8f9fa;
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
         .dashboard-header {
           background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
           color: white;
@@ -533,6 +551,130 @@ const DisplayCaseUser = () => {
           max-width: 1200px;
           margin: 2rem auto;
           padding: 0 2rem;
+          min-height: 60vh;
+        }
+        
+        /* Loading Styles */
+        .loading-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 400px;
+          width: 100%;
+        }
+
+        .loading-content {
+          text-align: center;
+          max-width: 500px;
+          width: 100%;
+        }
+
+        .loading-animation {
+          background: white;
+          padding: 3rem 2rem;
+          border-radius: 16px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .loading-spinner {
+          position: relative;
+          width: 80px;
+          height: 80px;
+          margin: 0 auto 2rem;
+        }
+
+        .spinner-ring {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border: 3px solid transparent;
+          border-top: 3px solid #2c3e50;
+          border-radius: 50%;
+          animation: spin 1.5s linear infinite;
+        }
+
+        .spinner-ring:nth-child(1) {
+          animation-delay: 0s;
+          border-top-color: #2c3e50;
+        }
+
+        .spinner-ring:nth-child(2) {
+          animation-delay: 0.5s;
+          border-top-color: #4a6580;
+          width: 70%;
+          height: 70%;
+          top: 15%;
+          left: 15%;
+        }
+
+        .spinner-ring:nth-child(3) {
+          animation-delay: 1s;
+          border-top-color: #3498db;
+          width: 50%;
+          height: 50%;
+          top: 25%;
+          left: 25%;
+        }
+
+        .spinner-center {
+          position: absolute;
+          width: 20px;
+          height: 20px;
+          background: #2c3e50;
+          border-radius: 50%;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        .loading-text h2 {
+          color: #2c3e50;
+          margin-bottom: 0.5rem;
+          font-size: 1.5rem;
+          font-weight: 600;
+        }
+
+        .loading-text p {
+          color: #7b8a9b;
+          font-size: 1rem;
+          margin-bottom: 2rem;
+        }
+
+        .loading-progress {
+          margin-top: 2rem;
+        }
+
+        .progress-bar {
+          width: 100%;
+          height: 6px;
+          background: #e9ecef;
+          border-radius: 3px;
+          overflow: hidden;
+          margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #2c3e50, #4a6580);
+          border-radius: 3px;
+          animation: progress 2s ease-in-out infinite;
+        }
+
+        @keyframes progress {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+
+        .progress-text {
+          color: #6c757d;
+          font-size: 0.9rem;
+          font-weight: 500;
         }
         
         .cases-header {
@@ -579,6 +721,96 @@ const DisplayCaseUser = () => {
           opacity: 0.9;
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Enhanced No Cases Styles */
+        .no-cases {
+          text-align: center;
+          padding: 4rem 2rem;
+          background: white;
+          border-radius: 16px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+          max-width: 600px;
+          margin: 2rem auto;
+        }
+
+        .no-cases-illustration {
+          margin-bottom: 2rem;
+        }
+
+        .no-cases-illustration i {
+          font-size: 5rem;
+          color: #bdc3c7;
+          margin-bottom: 1rem;
+          opacity: 0.7;
+        }
+
+        .no-cases h3 {
+          color: #2c3e50;
+          margin-bottom: 1rem;
+          font-size: 1.8rem;
+          font-weight: 600;
+        }
+
+        .no-cases p {
+          color: #7b8a9b;
+          margin-bottom: 2.5rem;
+          font-size: 1.1rem;
+          line-height: 1.6;
+          max-width: 400px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .no-cases-actions {
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        .find-lawyer-btn {
+          background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
+          color: white;
+          border: none;
+          padding: 0.8rem 1.5rem;
+          border-radius: 6px;
+          font-size: 1rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .find-lawyer-btn:hover {
+          opacity: 0.9;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .learn-more-btn {
+          background: transparent;
+          color: #4a6580;
+          border: 2px solid #4a6580;
+          padding: 0.8rem 1.5rem;
+          border-radius: 6px;
+          font-size: 1rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .learn-more-btn:hover {
+          background: #4a6580;
+          color: white;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         
         .cases-grid {
@@ -1021,65 +1253,6 @@ const DisplayCaseUser = () => {
           background: #5a6268;
         }
         
-        .no-cases {
-          text-align: center;
-          padding: 3rem;
-          background: white;
-          border-radius: 12px;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
-        
-        .no-cases i {
-          font-size: 3.5rem;
-          color: #bdc3c7;
-          margin-bottom: 1rem;
-        }
-        
-        .no-cases h3 {
-          color: #2c3e50;
-          margin-bottom: 0.5rem;
-        }
-        
-        .no-cases p {
-          color: #7b8a9b;
-          margin-bottom: 1.5rem;
-          max-width: 400px;
-          margin-left: auto;
-          margin-right: auto;
-        }
-        
-        .find-lawyer-btn {
-          background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
-          color: white;
-          border: none;
-          padding: 0.8rem 1.5rem;
-          border-radius: 6px;
-          font-size: 1rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .find-lawyer-btn:hover {
-          opacity: 0.9;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .loading-container {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 4rem 2rem;
-        }
-        
-        .loading-container p {
-          margin-top: 1rem;
-          color: #6c757d;
-        }
-        
         .error-container {
           text-align: center;
           padding: 3rem;
@@ -1173,6 +1346,38 @@ const DisplayCaseUser = () => {
           
           .pdf-iframe {
             height: 300px;
+          }
+
+          .loading-animation {
+            padding: 2rem 1rem;
+          }
+
+          .loading-text h2 {
+            font-size: 1.3rem;
+          }
+
+          .loading-spinner {
+            width: 60px;
+            height: 60px;
+          }
+
+          .no-cases {
+            padding: 3rem 1.5rem;
+          }
+
+          .no-cases-illustration i {
+            font-size: 4rem;
+          }
+
+          .no-cases-actions {
+            flex-direction: column;
+            align-items: center;
+          }
+
+          .find-lawyer-btn, .learn-more-btn {
+            width: 100%;
+            max-width: 250px;
+            justify-content: center;
           }
         }
       `}</style>

@@ -120,10 +120,294 @@ const DisplayCaseLawyer = () => {
   if (loading) {
     return (
       <div className="cases-container">
-        <div className="loading-container">
-          <PropagateLoader color="#4a6580" />
-          <p>Loading your cases...</p>
-        </div>
+        <header className="dashboard-header">
+          <div className="header-content">
+            <div className="logo">
+              <i className="fas fa-balance-scale"></i>
+              <span>Justice Partners</span>
+            </div>
+            <nav className="dashboard-nav">
+              <button className="nav-item" onClick={() => navigate('/lawyerPage')}>
+                Dashboard
+              </button>
+              <button className="nav-item active">My Cases</button>
+              <Link to={'/displayAvailability'}> <button className="nav-item">Availability</button></Link>
+            </nav>
+            <button className="sign-out-btn" onClick={handleSignOut}>
+              <i className="fas fa-sign-out-alt"></i> Logout
+            </button>
+          </div>
+        </header>
+
+        <main className="cases-main-content">
+          <div className="loading-container">
+            <div className="loading-content">
+              <div className="loading-animation">
+                <div className="loading-spinner">
+                  <div className="spinner-ring"></div>
+                  <div className="spinner-ring"></div>
+                  <div className="spinner-ring"></div>
+                  <div className="spinner-center"></div>
+                </div>
+                <div className="loading-text">
+                  <h2>Loading Your Legal Cases</h2>
+                  <p>Fetching your assigned cases from our database...</p>
+                </div>
+                <div className="loading-progress">
+                  <div className="progress-bar">
+                    <div className="progress-fill"></div>
+                  </div>
+                  <span className="progress-text">Loading case details</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <style jsx>{`
+          .cases-container {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          }
+
+          .dashboard-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          }
+          
+          .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+          }
+          
+          .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+          }
+          
+          .logo i {
+            margin-right: 0.5rem;
+            font-size: 1.8rem;
+          }
+          
+          .dashboard-nav {
+            display: flex;
+            gap: 1.5rem;
+          }
+          
+          .nav-item {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+            padding: 0.5rem 0;
+            font-size: 1rem;
+            position: relative;
+            transition: color 0.3s;
+          }
+          
+          .nav-item:hover, .nav-item.active {
+            color: white;
+          }
+          
+          .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: white;
+          }
+          
+          .sign-out-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+          }
+          
+          .sign-out-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+          }
+          
+          .cases-main-content {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            min-height: 400px;
+          }
+
+          .loading-content {
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+          }
+
+          .loading-animation {
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+          }
+
+          .loading-spinner {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+          }
+
+          .spinner-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            border-top: 3px solid #2c3e50;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+          }
+
+          .spinner-ring:nth-child(1) {
+            animation-delay: 0s;
+            border-top-color: #2c3e50;
+          }
+
+          .spinner-ring:nth-child(2) {
+            animation-delay: 0.5s;
+            border-top-color: #4a6580;
+            width: 70%;
+            height: 70%;
+            top: 15%;
+            left: 15%;
+          }
+
+          .spinner-ring:nth-child(3) {
+            animation-delay: 1s;
+            border-top-color: #3498db;
+            width: 50%;
+            height: 50%;
+            top: 25%;
+            left: 25%;
+          }
+
+          .spinner-center {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #2c3e50;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+          }
+
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+
+          .loading-text h2 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+          }
+
+          .loading-text p {
+            color: #7b8a9b;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+          }
+
+          .loading-progress {
+            margin-top: 2rem;
+          }
+
+          .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+          }
+
+          .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2c3e50, #4a6580);
+            border-radius: 3px;
+            animation: progress 2s ease-in-out infinite;
+          }
+
+          @keyframes progress {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+
+          .progress-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-weight: 500;
+          }
+
+          @media (max-width: 768px) {
+            .header-content {
+              flex-direction: column;
+              gap: 1rem;
+            }
+            
+            .dashboard-nav {
+              order: 3;
+              overflow-x: auto;
+              width: 100%;
+              padding-bottom: 0.5rem;
+              justify-content: center;
+            }
+            
+            .loading-animation {
+              padding: 2rem 1rem;
+            }
+            
+            .loading-text h2 {
+              font-size: 1.3rem;
+            }
+            
+            .loading-spinner {
+              width: 60px;
+              height: 60px;
+            }
+          }
+        `}</style>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
       </div>
     );
   }
@@ -159,7 +443,7 @@ const DisplayCaseLawyer = () => {
             <Link to={'/displayAvailability'}> <button className="nav-item">Availability</button></Link>
           </nav>
           <button className="sign-out-btn" onClick={handleSignOut}>
-            <i className="fas fa-sign-out-alt"></i> Sign Out
+            <i className="fas fa-sign-out-alt"></i> Logout
           </button>
         </div>
       </header>
@@ -417,7 +701,7 @@ const DisplayCaseLawyer = () => {
           background-color: #f8f9fa;
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         .dashboard-header {
           background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
           color: white;
@@ -816,20 +1100,6 @@ const DisplayCaseLawyer = () => {
           max-width: 400px;
           margin-left: auto;
           margin-right: auto;
-          font-size: 1.1rem;
-        }
-        
-        .loading-container {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 6rem 2rem;
-        }
-        
-        .loading-container p {
-          margin-top: 1.5rem;
-          color: #6c757d;
           font-size: 1.1rem;
         }
         
