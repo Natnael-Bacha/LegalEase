@@ -86,7 +86,7 @@ const DisplayCaseUser = () => {
   const handleViewDetails = (caseItem) => {
     setSelectedCase(caseItem);
     setShowModal(true);
-    setPreviewFile(null); // Reset preview when opening a new case
+    setPreviewFile(null);  // Reset preview when opening a new case
   };
 
   const closeModal = () => {

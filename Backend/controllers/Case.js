@@ -117,7 +117,7 @@ export async function getUserCase(req, res) {
       .populate('appointmentTime')           
       .sort({ createdAt: -1 });                         
 
-    if (!cases || cases.length === 0) {
+    if (!cases) {
       return res.status(404).json({
         status: false,
         message: "No cases found for this user",
