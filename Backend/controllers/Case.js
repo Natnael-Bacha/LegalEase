@@ -20,12 +20,6 @@ export const authenticateLawyerToken = async (req, res, next) => {
     const lawyer = await LawyerProfile.findOne({ 
       lawyer: decoded.id,
     }).select('-password'); 
-     
-    if (!lawyer) {
-      return res.status(200).json({status: true, message: "No Profile Found" });
-    }
-    
-    
     req.user = lawyer;
     next();
   } catch (error) {
