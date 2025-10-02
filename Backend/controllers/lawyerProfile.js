@@ -72,7 +72,11 @@ export async function getProfileById(req, res) {
         const lawyerProfile = await  LawyerProfile.findOne({lawyer: req.user._id});
         if(!lawyerProfile){
            console.log("Profile Not Found!")
-            return res.status(404).json({message: "No Profile Found"});
+            return res.status(200).json({
+              status: true,
+              message: "No Profile Found",
+              lawyerProfile: []
+            });
         }
           console.log("profile fetched")
         

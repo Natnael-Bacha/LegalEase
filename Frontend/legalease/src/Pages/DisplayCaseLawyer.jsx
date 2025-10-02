@@ -546,32 +546,9 @@ const DisplayCaseLawyer = () => {
                 <span className="stat-number">{cases.length}</span>
                 <span className="stat-label">Total Cases</span>
               </div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon pending">
-                <i className="fas fa-clock"></i>
-              </div>
-              <div className="stat-info">
-                <span className="stat-number">
-                  {cases.filter(caseItem => caseItem.status === 'Pending').length}
-                </span>
-                <span className="stat-label">Pending</span>
-              </div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon progress">
-                <i className="fas fa-spinner"></i>
-              </div>
-              <div className="stat-info">
-                <span className="stat-number">
-                  {cases.filter(caseItem => caseItem.status === 'In Progress').length}
-                </span>
-                <span className="stat-label">In Progress</span>
-              </div>
-            </div>
+            </div>  
           </div>
         </div>
-
         {cases.length === 0 ? (
           <div className="no-cases-container">
             <div className="no-cases-content">
@@ -600,9 +577,6 @@ const DisplayCaseLawyer = () => {
                 <div className="no-cases-actions">
                   <button className="action-btn primary" onClick={() => navigate('/lawyerPage')}>
                     <i className="fas fa-home"></i> Back to Dashboard
-                  </button>
-                  <button className="action-btn secondary" onClick={() => window.location.reload()}>
-                    <i className="fas fa-sync-alt"></i> Refresh Page
                   </button>
                 </div>
               </div>
