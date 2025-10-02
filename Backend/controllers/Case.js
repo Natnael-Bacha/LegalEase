@@ -150,7 +150,7 @@ export async function getLawyerCase(req, res) {
       .sort({ createdAt: -1 });
 
     if (!cases) {
-      return res.status(404).json({
+      return res.status(200).json({
         status: true,
         message: "No cases found for this lawyer",
       });
