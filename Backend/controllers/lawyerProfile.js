@@ -8,6 +8,7 @@ export const authenticateToken = async (req, res, next) => {
     const token = req.cookies.token;
     
     if (!token) {
+      console.log("No Valid Token Provided!");
       return res.status(401).json({ message: "Access denied. No token provided." });
     }
     
