@@ -415,14 +415,99 @@ const DisplayCaseLawyer = () => {
   if (error) {
     return (
       <div className="cases-container">
-        <div className="error-container">
-          <i className="fas fa-exclamation-triangle"></i>
-          <h2>Error Loading Cases</h2>
-          <p>{error}</p>
-          <button className="retry-btn" onClick={() => window.location.reload()}>
-            Try Again
-          </button>
-        </div>
+        <header className="dashboard-header">
+          <div className="header-content">
+            <div className="logo">
+              <i className="fas fa-balance-scale"></i>
+              <span>Justice Partners</span>
+            </div>
+            <nav className="dashboard-nav">
+              <button className="nav-item" onClick={() => navigate('/lawyerPage')}>
+                Dashboard
+              </button>
+              <button className="nav-item active">My Cases</button>
+              <Link to={'/displayAvailability'}> <button className="nav-item">Availability</button></Link>
+            </nav>
+            <button className="sign-out-btn" onClick={handleSignOut}>
+              <i className="fas fa-sign-out-alt"></i> Logout
+            </button>
+          </div>
+        </header>
+
+        <main className="cases-main-content">
+          <div className="error-container">
+            <div className="error-content">
+              <div className="error-icon">
+                <i className="fas fa-exclamation-triangle"></i>
+              </div>
+              <h2>Error Loading Cases</h2>
+              <p>{error}</p>
+              <button className="retry-btn" onClick={() => window.location.reload()}>
+                <i className="fas fa-redo"></i> Try Again
+              </button>
+            </div>
+          </div>
+        </main>
+
+        <style jsx>{`
+          .error-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            min-height: 400px;
+          }
+
+          .error-content {
+            text-align: center;
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+          }
+
+          .error-icon {
+            font-size: 4rem;
+            color: #e74c3c;
+            margin-bottom: 1.5rem;
+          }
+
+          .error-content h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+          }
+
+          .error-content p {
+            color: #7b8a9b;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+          }
+
+          .retry-btn {
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+          }
+
+          .retry-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.3);
+          }
+        `}</style>
       </div>
     );
   }
@@ -452,13 +537,76 @@ const DisplayCaseLawyer = () => {
         <div className="cases-header">
           <h1>My Legal Cases</h1>
           <p>Manage all your assigned legal cases</p>
+          <div className="cases-stats">
+            <div className="stat-card">
+              <div className="stat-icon total">
+                <i className="fas fa-briefcase"></i>
+              </div>
+              <div className="stat-info">
+                <span className="stat-number">{cases.length}</span>
+                <span className="stat-label">Total Cases</span>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon pending">
+                <i className="fas fa-clock"></i>
+              </div>
+              <div className="stat-info">
+                <span className="stat-number">
+                  {cases.filter(caseItem => caseItem.status === 'Pending').length}
+                </span>
+                <span className="stat-label">Pending</span>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon progress">
+                <i className="fas fa-spinner"></i>
+              </div>
+              <div className="stat-info">
+                <span className="stat-number">
+                  {cases.filter(caseItem => caseItem.status === 'In Progress').length}
+                </span>
+                <span className="stat-label">In Progress</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {cases.length === 0 ? (
-          <div className="no-cases">
-            <i className="fas fa-folder-open"></i>
-            <h3>No Cases Assigned Yet</h3>
-            <p>You haven't been assigned any cases yet. Check back later for new case assignments.</p>
+          <div className="no-cases-container">
+            <div className="no-cases-content">
+              <div className="no-cases-illustration">
+                <i className="fas fa-folder-open"></i>
+                <div className="illustration-circle"></div>
+                <div className="illustration-circle circle-2"></div>
+              </div>
+              <div className="no-cases-text">
+                <h2>No Cases Assigned Yet</h2>
+                <p>You haven't been assigned any legal cases at the moment. New cases will appear here once they are assigned to you by the system.</p>
+                <div className="no-cases-tips">
+                  <div className="tip-item">
+                    <i className="fas fa-check-circle"></i>
+                    <span>Ensure your profile is complete and verified</span>
+                  </div>
+                  <div className="tip-item">
+                    <i className="fas fa-check-circle"></i>
+                    <span>Keep your availability schedule up to date</span>
+                  </div>
+                  <div className="tip-item">
+                    <i className="fas fa-check-circle"></i>
+                    <span>Check back regularly for new assignments</span>
+                  </div>
+                </div>
+                <div className="no-cases-actions">
+                  <button className="action-btn primary" onClick={() => navigate('/lawyerPage')}>
+                    <i className="fas fa-home"></i> Back to Dashboard
+                  </button>
+                  <button className="action-btn secondary" onClick={() => window.location.reload()}>
+                    <i className="fas fa-sync-alt"></i> Refresh Page
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="cases-grid">
@@ -789,10 +937,6 @@ const DisplayCaseLawyer = () => {
           padding: 2rem;
           margin-bottom: 2rem;
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
         }
         
         .cases-header h1 {
@@ -804,7 +948,74 @@ const DisplayCaseLawyer = () => {
         .cases-header p {
           color: #7b8a9b;
           margin-bottom: 1.5rem;
-          max-width: 600px;
+        }
+
+        .cases-stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 1.5rem;
+          margin-top: 1.5rem;
+        }
+
+        .stat-card {
+          background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+          border-radius: 12px;
+          padding: 1.5rem;
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          border: 1px solid #e9ecef;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+          width: 60px;
+          height: 60px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.5rem;
+        }
+
+        .stat-icon.total {
+          background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
+          color: white;
+        }
+
+        .stat-icon.pending {
+          background: linear-gradient(135deg, #ffc107 0%, #ffd54f 100%);
+          color: #856404;
+        }
+
+        .stat-icon.progress {
+          background: linear-gradient(135deg, #17a2b8 0%, #6fdaee 100%);
+          color: #004085;
+        }
+
+        .stat-info {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .stat-number {
+          font-size: 2rem;
+          font-weight: bold;
+          color: #2c3e50;
+          line-height: 1;
+        }
+
+        .stat-label {
+          font-size: 0.9rem;
+          color: #6c757d;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
         
         .cases-grid {
@@ -1072,81 +1283,140 @@ const DisplayCaseLawyer = () => {
         .view-btn:hover::before {
           left: 100%;
         }
-        
-        .no-cases {
-          text-align: center;
-          padding: 4rem;
+
+        /* No Cases Container */
+        .no-cases-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 500px;
+          width: 100%;
+        }
+
+        .no-cases-content {
           background: white;
-          border-radius: 16px;
-          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-          margin: 2rem 0;
+          border-radius: 20px;
+          padding: 4rem 3rem;
+          text-align: center;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+          max-width: 700px;
+          width: 100%;
+          border: 1px solid #e9ecef;
         }
-        
-        .no-cases i {
-          font-size: 4rem;
+
+        .no-cases-illustration {
+          position: relative;
+          margin-bottom: 2rem;
+          display: inline-block;
+        }
+
+        .no-cases-illustration i {
+          font-size: 5rem;
           color: #bdc3c7;
-          margin-bottom: 1.5rem;
+          position: relative;
+          z-index: 2;
         }
-        
-        .no-cases h3 {
+
+        .illustration-circle {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 100px;
+          height: 100px;
+          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+          border-radius: 50%;
+          z-index: 1;
+        }
+
+        .illustration-circle.circle-2 {
+          width: 120px;
+          height: 120px;
+          background: linear-gradient(135deg, #f1f3f4 0%, #e5e8eb 100%);
+          opacity: 0.7;
+        }
+
+        .no-cases-text h2 {
           color: #2c3e50;
           margin-bottom: 1rem;
-          font-size: 1.5rem;
+          font-size: 2rem;
+          font-weight: 700;
         }
-        
-        .no-cases p {
+
+        .no-cases-text p {
           color: #7b8a9b;
+          font-size: 1.1rem;
+          line-height: 1.6;
           margin-bottom: 2rem;
-          max-width: 400px;
+          max-width: 500px;
           margin-left: auto;
           margin-right: auto;
-          font-size: 1.1rem;
         }
-        
-        .error-container {
-          text-align: center;
-          padding: 3rem;
-          background: white;
-          border-radius: 16px;
-          max-width: 600px;
-          margin: 3rem auto;
-          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+
+        .no-cases-tips {
+          background: #f8f9fa;
+          border-radius: 12px;
+          padding: 1.5rem;
+          margin: 2rem 0;
+          text-align: left;
         }
-        
-        .error-container i {
-          font-size: 3.5rem;
-          color: #e74c3c;
-          margin-bottom: 1.5rem;
-        }
-        
-        .error-container h2 {
-          color: #2c3e50;
+
+        .tip-item {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
           margin-bottom: 1rem;
-          font-size: 1.8rem;
+          padding: 0.5rem 0;
         }
-        
-        .error-container p {
-          color: #7b8a9b;
-          margin-bottom: 2rem;
+
+        .tip-item:last-child {
+          margin-bottom: 0;
+        }
+
+        .tip-item i {
+          color: #27ae60;
           font-size: 1.1rem;
+          min-width: 20px;
         }
-        
-        .retry-btn {
+
+        .tip-item span {
+          color: #5a6c7d;
+          font-size: 1rem;
+        }
+
+        .no-cases-actions {
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+          flex-wrap: wrap;
+          margin-top: 2rem;
+        }
+
+        .no-cases-actions .action-btn {
+          padding: 1rem 2rem;
+          border-radius: 10px;
+          font-weight: 600;
+          text-transform: none;
+          letter-spacing: normal;
+          width: auto;
+          min-width: 180px;
+        }
+
+        .action-btn.primary {
           background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
           color: white;
           border: none;
-          padding: 1rem 2rem;
-          border-radius: 8px;
-          font-size: 1.1rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s;
-          box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
         }
-        
-        .retry-btn:hover {
+
+        .action-btn.secondary {
+          background: transparent;
+          color: #2c3e50;
+          border: 2px solid #2c3e50;
+        }
+
+        .action-btn:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(44, 62, 80, 0.3);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
         
         /* Modal Styles */
@@ -1423,6 +1693,27 @@ const DisplayCaseLawyer = () => {
           
           .case-header h3 {
             margin-right: 0;
+          }
+          
+          .cases-stats {
+            grid-template-columns: 1fr;
+          }
+          
+          .no-cases-content {
+            padding: 2rem 1.5rem;
+            margin: 1rem;
+          }
+          
+          .no-cases-text h2 {
+            font-size: 1.5rem;
+          }
+          
+          .no-cases-actions {
+            flex-direction: column;
+          }
+          
+          .no-cases-actions .action-btn {
+            width: 100%;
           }
           
           .modal-overlay {
