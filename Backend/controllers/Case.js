@@ -22,7 +22,7 @@ export const authenticateLawyerToken = async (req, res, next) => {
     }).select('-password'); 
      
     if (!lawyer) {
-      return res.status(404).json({status: true, message: "No Profile Found" });
+      return res.status(200).json({status: true, message: "No Profile Found" });
     }
     
     
