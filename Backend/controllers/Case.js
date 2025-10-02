@@ -142,7 +142,7 @@ export async function getUserCase(req, res) {
 
 export async function getLawyerCase(req, res) {
   try {
-    console.log("Geting Lawyer Cases")
+    console.log("Getting Lawyer Cases")
       if (!req.user) {
       return res.status(200).json({
         status: true,
@@ -186,9 +186,20 @@ export async function getLawyerCase(req, res) {
 export async function getLawyerStats(req, res) {
   try {
     console.log("Getting Lawyer Stats");
-    const lawyerId = req.user._id; 
+      if (!req.user) {
+      return res.status(200).json({
+        status: true,
+        message: "No lawyer profile found. Please complete your profile setup.",
+        stats: {
+        cases: 0,
+        clients: 0,
+      } 
+      });
+    }
 
 
+
+    const lawyerId = req.user.id; 
     const casesCount = await Case.countDocuments({ lawyer: lawyerId });
     
 
