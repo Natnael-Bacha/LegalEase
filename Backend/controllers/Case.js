@@ -149,7 +149,7 @@ export async function getLawyerCase(req, res) {
       .populate('appointmentTime')            
       .sort({ createdAt: -1 });
 
-    if (!cases || cases.length === 0) {
+    if (!cases) {
       console.log("No Lawyer Found")
       return res.status(404).json({
         status: false,

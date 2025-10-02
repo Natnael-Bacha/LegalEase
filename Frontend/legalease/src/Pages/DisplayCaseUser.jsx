@@ -262,12 +262,6 @@ const DisplayCaseUser = () => {
             <div className="cases-header">
               <h1>My Legal Cases</h1>
               <p>Track the status of all your legal matters in one place</p>
-              <button 
-                className="create-case-btn"
-                onClick={() => navigate('/createCase')}
-              >
-                <i className="fas fa-plus"></i> Create New Case
-              </button>
             </div>
 
             {cases.length === 0 ? (
