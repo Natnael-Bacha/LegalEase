@@ -54,12 +54,17 @@ const LawyerDashboard = () => {
             if (statsRes?.data?.status) {
               setStats(statsRes.data.stats);
             }
+            else if(statsRes?.data?.status === 404){
+              setStats(
+                {cases: 0 , clients: 0}
+              );
+            }
 
             if (profileRes && profileRes.status === 200) {
               setProfileData(profileRes.data);
               setProfileIsCreated(true);
               console.log('Profile fetched');
-            } else {
+            } else if(profileRes.status === 404) {
               setProfileIsCreated(false);
               console.log('No profile found');
             }
