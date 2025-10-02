@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router';
 import { PropagateLoader } from 'react-spinners';
 
+
 const DisplayCaseUser = () => {
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
