@@ -15,11 +15,19 @@ export const authenticateLawyerToken = async (req, res, next) => {
     
  
     const decoded = jwt.verify(token, process.env.KEY);
-    console.log("Current Lawyer Id:", decoded._id);
+    console.log("Current Lawyer Id:", decoded.id);
     
     const lawyer = await LawyerProfile.findOne({ 
       lawyer: decoded.id,
     }).select('-password'); 
+     
+       if (!lawyer) {
+      req.user = null; 
+      console.log("No lawyer profile found for user:", decoded.id);
+      return next();
+    }
+    
+    
     req.user = lawyer;
     next();
   } catch (error) {
@@ -135,8 +143,17 @@ export async function getUserCase(req, res) {
 export async function getLawyerCase(req, res) {
   try {
     console.log("Geting Lawyer Cases")
-    const lawyerId = req.user._id; 
+      if (!req.user) {
+      return res.status(200).json({
+        status: true,
+        message: "No lawyer profile found. Please complete your profile setup.",
+        cases: [] 
+      });
+    }
 
+
+
+    const lawyerId = req.user._id; 
     const cases = await Case.find({ lawyer: lawyerId })
       .populate("client", "firstName middleName phoneNumber email phoneNumber") 
       .populate("lawyer", "fullName email") 
