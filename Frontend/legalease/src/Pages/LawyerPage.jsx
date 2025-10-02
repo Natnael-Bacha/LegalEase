@@ -60,16 +60,30 @@ const LawyerDashboard = () => {
               );
             }
 
+      
             if (profileRes && profileRes.status === 200) {
-              setProfileData(profileRes.data);
-              setProfileIsCreated(true);
-              console.log('Profile fetched');
-            } else if(profileRes.status === 404) {
+            
+              if (profileRes.data.status && profileRes.data.lawyerProfile && profileRes.data.lawyerProfile.length === 0) {
+               
+                setProfileIsCreated(false);
+                setProfileData(null);
+                console.log('No profile found - empty array');
+              } else {
+        
+                setProfileData(profileRes.data);
+                setProfileIsCreated(true);
+                console.log('Profile fetched successfully');
+              }
+            } else {
+              
               setProfileIsCreated(false);
-              console.log('No profile found');
+              setProfileData(null);
+              console.log('No profile found - other case');
             }
           } catch (error) {
             console.log('Error fetching data:', error);
+            setProfileIsCreated(false);
+            setProfileData(null);
           } finally {
             setIsLoading(false);
           }
@@ -141,7 +155,7 @@ const LawyerDashboard = () => {
 
             <div className="dashboard-content">
               <div className="left-column">
-                {profileIsCreated ? (
+                {profileIsCreated && profileData ? (
                   <div className="profile-details">
                     {profileData.profileImage && (
                       <div className="profile-image">
@@ -190,6 +204,9 @@ const LawyerDashboard = () => {
                         <p>No profile image</p>
                       </div>
                     </div>
+                    <p className="profile-prompt">
+                      Complete your profile to start receiving client inquiries and cases.
+                    </p>
                     <button
                       className="create-profile-btn"
                       onClick={handleCreateProfile}
@@ -411,6 +428,14 @@ const LawyerDashboard = () => {
         .empty-image-placeholder i {
           font-size: 3rem;
           margin-bottom: 0.5rem;
+        }
+
+        .profile-prompt {
+          text-align: center;
+          color: #6c757d;
+          margin-bottom: 1.5rem;
+          font-style: italic;
+          line-height: 1.5;
         }
 
         .create-profile-btn {

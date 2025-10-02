@@ -86,9 +86,6 @@ export async function getProfileById(req, res) {
        
         console.log(error);
     }
-    
-
-
 }
 
 
