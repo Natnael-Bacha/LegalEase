@@ -20,6 +20,7 @@ export const authenticateToken = async (req, res, next) => {
     }).select('-password'); 
     
     if (!lawyer) {
+      console.log("Can not find a user with this ID")
       return res.status(401).json({ message: "Invalid token. User not found." });
     }
     
