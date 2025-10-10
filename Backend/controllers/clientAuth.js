@@ -83,7 +83,7 @@ if(!verifyPassword){
      return res.status(404).json({message: "Incorrect Password"})
 }
 
-const token = jwt.sign({firstName: user.firstName, email: user.email , password: user.password}, process.env.KEY, {expiresIn: '24h'})
+const token = jwt.sign({firstName: user.firstName, email: user.email , password: user.password}, process.env.KEY , {expiresIn: '24h'})
 res.cookie('token', token, {
   httpOnly: true,
   secure: true,

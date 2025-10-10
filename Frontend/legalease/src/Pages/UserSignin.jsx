@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import axios from 'axios';
 
@@ -8,23 +8,75 @@ const UserSignin = () => {
     password: ''
   });
   
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  const validateField = (name, value) => {
+    const newErrors = { ...errors };
+
+    switch (name) {
+      case 'email':
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!value) {
+          newErrors.email = 'Email is required';
+        } else if (!emailRegex.test(value)) {
+          newErrors.email = 'Please enter a valid email address';
+        } else {
+          delete newErrors.email;
+        }
+        break;
+
+      case 'password':
+        if (!value) {
+          newErrors.password = 'Password is required';
+        } else {
+          delete newErrors.password;
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setErrors(newErrors);
+  };
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
-    
-    if (error) setError('');
+    validateField(name, value);
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsLoading(true);
-    setError('');
     
     try {
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/clientAuth/login`, formData, {
@@ -35,7 +87,7 @@ const UserSignin = () => {
         navigate('/userPage');
       }
     } catch (error) {
-      setError(error.response?.data?.message || 'Signin failed. Please check your credentials and try again.');
+      setErrors({ submit: error.response?.data?.message || 'Signin failed. Please check your credentials and try again.' });
       console.error('Signin error:', error);
     } finally {
       setIsLoading(false);
@@ -78,10 +130,10 @@ const UserSignin = () => {
             <p>Enter your credentials to continue your legal journey</p>
           </div>
 
-          {error && (
+          {errors.submit && (
             <div className="error-message">
               <i className="fas fa-exclamation-circle"></i>
-              {error}
+              {errors.submit}
             </div>
           )}
 
@@ -97,8 +149,9 @@ const UserSignin = () => {
                 required
                 disabled={isLoading}
                 placeholder="your.email@example.com"
-                className={error ? 'error' : ''}
+                className={errors.email ? 'error' : ''}
               />
+              {errors.email && <span className="field-error-message">{errors.email}</span>}
             </div>
             
             <div className="input-group">
@@ -112,22 +165,14 @@ const UserSignin = () => {
                 required
                 disabled={isLoading}
                 placeholder="Enter your password"
-                className={error ? 'error' : ''}
+                className={errors.password ? 'error' : ''}
               />
+              {errors.password && <span className="field-error-message">{errors.password}</span>}
             </div>
             
             <div className="form-options">
-              <div className="remember-me">
-                <input 
-                  type="checkbox" 
-                  id="remember" 
-                  disabled={isLoading}
-                />
-                <label htmlFor="remember">Remember me</label>
-              </div>
-              <div className="forgot-password">
-                <a href="/forgot-password">Forgot your password?</a>
-              </div>
+
+              
             </div>
             
             <button 
@@ -363,6 +408,13 @@ const UserSignin = () => {
           background-color: #f1f3f4;
           cursor: not-allowed;
           opacity: 0.7;
+        }
+        
+        .field-error-message {
+          color: #d32f2f;
+          font-size: 0.85rem;
+          margin-top: 0.4rem;
+          font-weight: 500;
         }
         
         .input-group input::placeholder {

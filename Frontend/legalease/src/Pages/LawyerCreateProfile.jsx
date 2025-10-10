@@ -47,27 +47,28 @@ const LawyerCreateProfile = () => {
     }
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
-  
-  try {
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/lawyerProfile/createProfile`, formData);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
     
-    console.log('Response received:', response);
-    
-    if (response.status === 200 || response.status === 201) {
-      console.log('Profile created successfully, navigating to lawyer page');
-      navigate('/lawyerPage');
-    } else {
-      console.log('Unexpected response status:', response.status);
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/lawyerProfile/createProfile`, formData, 
+        {withCredentials: true});
+      
+      console.log('Response received:', response);
+      
+      if (response.status === 200 || response.status === 201) {
+        console.log('Profile created successfully, navigating to lawyer page');
+        navigate('/lawyerPage');
+      } else {
+        console.log('Unexpected response status:', response.status);
+      }
+    } catch (error) {
+      console.error('Error creating profile:', error);
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error('Error creating profile:', error);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   const nextStep = () => {
     setCurrentStep(currentStep + 1);
@@ -75,6 +76,10 @@ const handleSubmit = async (e) => {
 
   const prevStep = () => {
     setCurrentStep(currentStep - 1);
+  };
+
+  const handleBackToDashboard = () => {
+    navigate('/lawyerPage');
   };
 
   useEffect(()=>{
@@ -87,6 +92,15 @@ const handleSubmit = async (e) => {
         <div className="logo">
           <i className="fas fa-balance-scale"></i>
           <span>Justice Partners</span>
+        </div>
+        <div className="header-actions">
+          <button 
+            className="back-to-dashboard-btn"
+            onClick={handleBackToDashboard}
+            disabled={isLoading}
+          >
+            <i className="fas fa-arrow-left"></i> Back to Dashboard
+          </button>
         </div>
         <div className="progress-bar">
           <div className={`progress-step ${currentStep >= 1 ? 'active' : ''}`}>
@@ -343,6 +357,35 @@ const handleSubmit = async (e) => {
           margin-right: 10px;
           font-size: 28px;
           color: #3498db;
+        }
+        
+        .header-actions {
+          margin-bottom: 15px;
+        }
+        
+        .back-to-dashboard-btn {
+          background: #6c757d;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: 500;
+          transition: all 0.3s;
+          border: none;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        
+        .back-to-dashboard-btn:hover:not(:disabled) {
+          background: #5a6268;
+          transform: translateY(-1px);
+        }
+        
+        .back-to-dashboard-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
         }
         
         .progress-bar {
@@ -675,6 +718,11 @@ const handleSubmit = async (e) => {
           
           .progress-step:not(:last-child):after {
             display: none;
+          }
+          
+          .header-actions {
+            order: -1;
+            margin-bottom: 15px;
           }
         }
       `}</style>

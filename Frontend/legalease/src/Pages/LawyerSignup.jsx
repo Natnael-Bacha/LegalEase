@@ -11,23 +11,124 @@ const LawyerSignup = () => {
     password: '',
     confirmPassword: ''
   });
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  const validateField = (name, value) => {
+    const newErrors = { ...errors };
+
+    switch (name) {
+      case 'firstName':
+        if (!value.trim()) {
+          newErrors.firstName = 'First name is required';
+        } else {
+          delete newErrors.firstName;
+        }
+        break;
+
+      case 'middleName':
+        if (!value.trim()) {
+          newErrors.middleName = 'Middle name is required';
+        } else {
+          delete newErrors.middleName;
+        }
+        break;
+
+      case 'lastName':
+        if (!value.trim()) {
+          newErrors.lastName = 'Last name is required';
+        } else {
+          delete newErrors.lastName;
+        }
+        break;
+
+      case 'email':
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!value) {
+          newErrors.email = 'Email is required';
+        } else if (!emailRegex.test(value)) {
+          newErrors.email = 'Please enter a valid email address';
+        } else {
+          delete newErrors.email;
+        }
+        break;
+
+      case 'password':
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!value) {
+          newErrors.password = 'Password is required';
+        } else if (!passwordRegex.test(value)) {
+          newErrors.password = 'Password must be at least 8 characters with uppercase, lowercase, number, and special character';
+        } else {
+          delete newErrors.password;
+        }
+        break;
+
+      case 'confirmPassword':
+        if (!value) {
+          newErrors.confirmPassword = 'Please confirm your password';
+        } else if (value !== formData.password) {
+          newErrors.confirmPassword = 'Passwords do not match';
+        } else {
+          delete newErrors.confirmPassword;
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setErrors(newErrors);
+  };
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+    validateField(name, value);
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
+    if (!formData.middleName.trim()) newErrors.middleName = 'Middle name is required';
+    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (!passwordRegex.test(formData.password)) {
+      newErrors.password = 'Password must be at least 8 characters with uppercase, lowercase, number, and special character';
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.confirmPassword !== formData.password) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
-    if (formData.confirmPassword !== formData.password) {
-      alert("Passwords do not match");
+    e.preventDefault();
+    
+    if (!validateForm()) {
       return;
     }
     
-    e.preventDefault();
     setIsLoading(true);
     
     try {
@@ -87,19 +188,24 @@ const LawyerSignup = () => {
                   onChange={handleChange}
                   required
                   disabled={isLoading}
+                  className={errors.firstName ? 'error' : ''}
                 />
+                {errors.firstName && <span className="error-message">{errors.firstName}</span>}
               </div>
               
               <div className="input-group">
-                <label htmlFor="middleName">Middle Name</label>
+                <label htmlFor="middleName">Middle Name *</label>
                 <input
                   type="text"
                   id="middleName"
                   name="middleName"
                   value={formData.middleName}
                   onChange={handleChange}
+                  required
                   disabled={isLoading}
+                  className={errors.middleName ? 'error' : ''}
                 />
+                {errors.middleName && <span className="error-message">{errors.middleName}</span>}
               </div>
               
               <div className="input-group">
@@ -112,7 +218,9 @@ const LawyerSignup = () => {
                   onChange={handleChange}
                   required
                   disabled={isLoading}
+                  className={errors.lastName ? 'error' : ''}
                 />
+                {errors.lastName && <span className="error-message">{errors.lastName}</span>}
               </div>
             </div>
             
@@ -126,7 +234,9 @@ const LawyerSignup = () => {
                 onChange={handleChange}
                 required
                 disabled={isLoading}
+                className={errors.email ? 'error' : ''}
               />
+              {errors.email && <span className="error-message">{errors.email}</span>}
             </div>
             
             <div className="password-fields">
@@ -140,7 +250,9 @@ const LawyerSignup = () => {
                   onChange={handleChange}
                   required
                   disabled={isLoading}
+                  className={errors.password ? 'error' : ''}
                 />
+                {errors.password && <span className="error-message">{errors.password}</span>}
               </div>
               
               <div className="input-group">
@@ -153,7 +265,9 @@ const LawyerSignup = () => {
                   onChange={handleChange}
                   required
                   disabled={isLoading}
+                  className={errors.confirmPassword ? 'error' : ''}
                 />
+                {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
               </div>
             </div>
             
@@ -374,6 +488,18 @@ const LawyerSignup = () => {
           background-color: #f1f3f4;
           cursor: not-allowed;
           opacity: 0.7;
+        }
+        
+        .input-group input.error {
+          border-color: #dc3545;
+          background: #fff5f5;
+        }
+        
+        .error-message {
+          color: #dc3545;
+          font-size: 0.85rem;
+          margin-top: 0.4rem;
+          font-weight: 500;
         }
         
         .terms-agreement {

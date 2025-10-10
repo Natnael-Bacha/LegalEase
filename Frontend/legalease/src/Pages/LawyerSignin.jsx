@@ -7,21 +7,75 @@ const LawyerSignin = () => {
     email: '',
     password: ''
   });
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   
   const navigate = useNavigate();
   
+  const validateField = (name, value) => {
+    const newErrors = { ...errors };
+
+    switch (name) {
+      case 'email':
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!value) {
+          newErrors.email = 'Email is required';
+        } else if (!emailRegex.test(value)) {
+          newErrors.email = 'Please enter a valid email address';
+        } else {
+          delete newErrors.email;
+        }
+        break;
+
+      case 'password':
+        if (!value) {
+          newErrors.password = 'Password is required';
+        } else {
+          delete newErrors.password;
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setErrors(newErrors);
+  };
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+    validateField(name, value);
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
@@ -36,7 +90,7 @@ const LawyerSignin = () => {
         navigate('/lawyerPage');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+      setErrors({ submit: err.response?.data?.message || 'Login failed. Please check your credentials.' });
       console.error('Login error:', err);
     } finally {
       setIsLoading(false);
@@ -75,10 +129,10 @@ const LawyerSignin = () => {
             <p>Enter your credentials to access your account</p>
           </div>
 
-          {error && (
+          {errors.submit && (
             <div className="error-message">
               <i className="fas fa-exclamation-circle"></i>
-              {error}
+              {errors.submit}
             </div>
           )}
 
@@ -94,8 +148,9 @@ const LawyerSignin = () => {
                 required
                 disabled={isLoading}
                 placeholder="your.email@lawfirm.com"
-                className={error ? 'error' : ''}
+                className={errors.email ? 'error' : ''}
               />
+              {errors.email && <span className="field-error-message">{errors.email}</span>}
             </div>
             
             <div className="input-group">
@@ -109,22 +164,14 @@ const LawyerSignin = () => {
                 required
                 disabled={isLoading}
                 placeholder="Enter your password"
-                className={error ? 'error' : ''}
+                className={errors.password ? 'error' : ''}
               />
+              {errors.password && <span className="field-error-message">{errors.password}</span>}
             </div>
             
             <div className="form-options">
-              <div className="remember-me">
-                <input 
-                  type="checkbox" 
-                  id="remember" 
-                  disabled={isLoading}
-                />
-                <label htmlFor="remember">Remember me</label>
-              </div>
-              <div className="forgot-password">
-                <a href="/forgot-password">Forgot your password?</a>
-              </div>
+     
+           
             </div>
             
             <button 
@@ -360,6 +407,13 @@ const LawyerSignin = () => {
           background-color: #f1f3f4;
           cursor: not-allowed;
           opacity: 0.7;
+        }
+        
+        .field-error-message {
+          color: #d32f2f;
+          font-size: 0.85rem;
+          margin-top: 0.4rem;
+          font-weight: 500;
         }
         
         .form-options {
