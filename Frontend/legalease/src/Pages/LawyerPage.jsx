@@ -1,7 +1,6 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
-import { PropagateLoader } from 'react-spinners';
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router";
 
 const LawyerDashboard = () => {
   const navigate = useNavigate();
@@ -10,31 +9,36 @@ const LawyerDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
     cases: 0,
-    clients: 0
+    clients: 0,
   });
 
   const handleLogout = () => {
     try {
-      axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`).then(res => {
-        if (res.status === 200) {
-          navigate('/');
-        }
-      });
+      axios
+        .get(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`)
+        .then((res) => {
+          if (res.status === 200) {
+            navigate("/");
+          }
+        });
     } catch (error) {
       console.log(error);
     }
   };
 
   const handleCreateProfile = () => {
-    navigate('/lawyerCreateProfile');
+    navigate("/lawyerCreateProfile");
   };
 
   useEffect(() => {
     const verify = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/verifyLawyer`, {
-          withCredentials: true
-        });
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/auth/verifyLawyer`,
+          {
+            withCredentials: true,
+          },
+        );
 
         if (res.data.status) {
           try {
@@ -42,56 +46,58 @@ const LawyerDashboard = () => {
 
             const [profileRes, statsRes] = await Promise.all([
               axios
-                .get(`${import.meta.env.VITE_BACKEND_URL}/lawyerProfile/getProfileById`, {
-                  withCredentials: true
-                })
-                .catch(err => err.response), 
-              axios.get(`${import.meta.env.VITE_BACKEND_URL}/cases/getLawyerStats`, {
-                withCredentials: true
-              })
+                .get(
+                  `${import.meta.env.VITE_BACKEND_URL}/lawyerProfile/getProfileById`,
+                  {
+                    withCredentials: true,
+                  },
+                )
+                .catch((err) => err.response),
+              axios.get(
+                `${import.meta.env.VITE_BACKEND_URL}/cases/getLawyerStats`,
+                {
+                  withCredentials: true,
+                },
+              ),
             ]);
 
             if (statsRes?.data?.status) {
               setStats(statsRes.data.stats);
-            }
-            else if(statsRes?.data?.status === 404){
-              setStats(
-                {cases: 0 , clients: 0}
-              );
+            } else if (statsRes?.data?.status === 404) {
+              setStats({ cases: 0, clients: 0 });
             }
 
-      
             if (profileRes && profileRes.status === 200) {
-            
-              if (profileRes.data.status && profileRes.data.lawyerProfile && profileRes.data.lawyerProfile.length === 0) {
-               
+              if (
+                profileRes.data.status &&
+                profileRes.data.lawyerProfile &&
+                profileRes.data.lawyerProfile.length === 0
+              ) {
                 setProfileIsCreated(false);
                 setProfileData(null);
-                console.log('No profile found - empty array');
+                console.log("No profile found - empty array");
               } else {
-        
                 setProfileData(profileRes.data);
                 setProfileIsCreated(true);
-                console.log('Profile fetched successfully');
+                console.log("Profile fetched successfully");
               }
             } else {
-              
               setProfileIsCreated(false);
               setProfileData(null);
-              console.log('No profile found - other case');
+              console.log("No profile found - other case");
             }
           } catch (error) {
-            console.log('Error fetching data:', error);
+            console.log("Error fetching data:", error);
             setProfileIsCreated(false);
             setProfileData(null);
           } finally {
             setIsLoading(false);
           }
         } else {
-          navigate('/');
+          navigate("/");
         }
       } catch (error) {
-        navigate('/');
+        navigate("/");
       }
     };
 
@@ -108,11 +114,10 @@ const LawyerDashboard = () => {
           </div>
           <nav className="dashboard-nav">
             <button className="nav-item active">Dashboard</button>
-            <Link to={'/displayLawyerCases'}>
+            <Link to={"/displayLawyerCases"}>
               <button className="nav-item">Cases</button>
             </Link>
-            <Link to={'/displayAvailability'}>
-              {' '}
+            <Link to={"/displayAvailability"}>
               <button className="nav-item">Availability</button>
             </Link>
           </nav>
@@ -134,14 +139,13 @@ const LawyerDashboard = () => {
                   <div className="spinner-center"></div>
                 </div>
                 <div className="loading-text">
-                  <h2>Setting Up Your Dashboard</h2>
-                  <p>Loading your practice data and statistics...</p>
+                  <h2>Loading Dashboard</h2>
+                  <p>Please wait...</p>
                 </div>
                 <div className="loading-progress">
                   <div className="progress-bar">
                     <div className="progress-fill"></div>
                   </div>
-                  <span className="progress-text">Loading dashboard</span>
                 </div>
               </div>
             </div>
@@ -149,8 +153,8 @@ const LawyerDashboard = () => {
         ) : (
           <>
             <div className="welcome-section">
-              <h1>Welcome to Your Dashboard</h1>
-              <p>Manage your practice, clients, and cases all in one place</p>
+              <h1>Welcome Back</h1>
+              <p>Manage your practice and cases</p>
             </div>
 
             <div className="dashboard-content">
@@ -178,7 +182,7 @@ const LawyerDashboard = () => {
                       </div>
                       <div className="info-item">
                         <i className="fas fa-briefcase"></i>
-                        <span>{profileData.YearsOfExperience} years experience</span>
+                        <span>{profileData.YearsOfExperience} years exp</span>
                       </div>
                       <div className="info-item">
                         <i className="fas fa-map-marker-alt"></i>
@@ -186,12 +190,12 @@ const LawyerDashboard = () => {
                       </div>
                       <div className="info-item">
                         <i className="fas fa-money-bill-wave"></i>
-                        <span>ETB {profileData.minPriceInETB} consultation fee</span>
+                        <span>ETB {profileData.minPriceInETB}</span>
                       </div>
                     </div>
-                    <Link to={'/updateLawyerProfile'}>
+                    <Link to={"/updateLawyerProfile"}>
                       <button className="edit-profile-btn">
-                        <i className="fas fa-edit"></i> Edit Profile
+                        <i className="fas fa-edit"></i> Edit
                       </button>
                     </Link>
                   </div>
@@ -201,11 +205,10 @@ const LawyerDashboard = () => {
                     <div className="profile-image-container">
                       <div className="empty-image-placeholder">
                         <i className="fas fa-user"></i>
-                        <p>No profile image</p>
                       </div>
                     </div>
                     <p className="profile-prompt">
-                      Complete your profile to start receiving client inquiries and cases.
+                      Complete your profile to start receiving client inquiries.
                     </p>
                     <button
                       className="create-profile-btn"
@@ -238,36 +241,6 @@ const LawyerDashboard = () => {
                       <p className="stat-number">{stats.clients}</p>
                     </div>
                   </div>
-
-                  <div className="stat-card">
-                    <div className="stat-icon">
-                      <i className="fas fa-calendar-alt"></i>
-                    </div>
-                    <div className="stat-info">
-                      <h3>Upcoming Hearings</h3>
-                      <p className="stat-number">0</p>
-                    </div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div className="stat-icon">
-                      <i className="fas fa-file-contract"></i>
-                    </div>
-                    <div className="stat-info">
-                      <h3>Documents</h3>
-                      <p className="stat-number">0</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="recent-activity">
-                  <h2>Recent Activity</h2>
-                  <div className="activity-card">
-                    <div className="activity-item">
-                      <i className="fas fa-info-circle"></i>
-                      <p>No recent activity</p>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -279,14 +252,15 @@ const LawyerDashboard = () => {
         .lawyer-dashboard-container {
           min-height: 100vh;
           background-color: #f8f9fa;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+          font-size: 14px;
         }
 
         .dashboard-header {
           background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
           color: white;
-          padding: 1rem 0;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          padding: 0.8rem 0;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .header-content {
@@ -295,24 +269,24 @@ const LawyerDashboard = () => {
           align-items: center;
           max-width: 1200px;
           margin: 0 auto;
-          padding: 0 2rem;
+          padding: 0 1.5rem;
         }
 
         .logo {
           display: flex;
           align-items: center;
-          font-size: 1.5rem;
+          font-size: 1.2rem;
           font-weight: bold;
         }
 
         .logo i {
-          margin-right: 0.5rem;
-          font-size: 1.8rem;
+          margin-right: 0.4rem;
+          font-size: 1.4rem;
         }
 
         .dashboard-nav {
           display: flex;
-          gap: 1.5rem;
+          gap: 1rem;
         }
 
         .nav-item {
@@ -320,8 +294,8 @@ const LawyerDashboard = () => {
           border: none;
           color: rgba(255, 255, 255, 0.8);
           cursor: pointer;
-          padding: 0.5rem 0;
-          font-size: 1rem;
+          padding: 0.4rem 0;
+          font-size: 0.9rem;
           position: relative;
           transition: color 0.3s;
         }
@@ -332,7 +306,7 @@ const LawyerDashboard = () => {
         }
 
         .nav-item.active::after {
-          content: '';
+          content: "";
           position: absolute;
           bottom: 0;
           left: 0;
@@ -345,12 +319,13 @@ const LawyerDashboard = () => {
           background-color: rgba(255, 255, 255, 0.1);
           border: 1px solid rgba(255, 255, 255, 0.3);
           color: white;
-          padding: 0.5rem 1rem;
+          padding: 0.4rem 0.8rem;
           border-radius: 4px;
           cursor: pointer;
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.4rem;
+          font-size: 0.85rem;
           transition: background-color 0.3s;
         }
 
@@ -360,82 +335,78 @@ const LawyerDashboard = () => {
 
         .dashboard-main {
           max-width: 1200px;
-          margin: 2rem auto;
-          padding: 0 2rem;
+          margin: 1.5rem auto;
+          padding: 0 1.5rem;
         }
 
         .welcome-section {
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
         }
 
         .welcome-section h1 {
           color: #2c3e50;
-          margin-bottom: 0.5rem;
-          font-size: 2rem;
+          margin-bottom: 0.2rem;
+          font-size: 1.8rem;
         }
 
         .welcome-section p {
           color: #7b8a9b;
-          font-size: 1.1rem;
+          font-size: 0.95rem;
         }
 
         .dashboard-content {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 2rem;
+          gap: 1.5rem;
         }
 
         .left-column,
         .right-column {
           display: flex;
           flex-direction: column;
-          gap: 2rem;
+          gap: 1.5rem;
         }
 
         .profile-card,
         .activity-card {
           background-color: white;
           border-radius: 8px;
-          padding: 1.5rem;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          padding: 1.2rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .profile-card h2,
         .recent-activity h2 {
           color: #2c3e50;
-          margin-bottom: 1.5rem;
-          font-size: 1.3rem;
+          margin-bottom: 1rem;
+          font-size: 1.2rem;
         }
 
         .profile-image-container {
           display: flex;
           justify-content: center;
-          margin-bottom: 1.5rem;
+          margin-bottom: 1rem;
         }
 
         .empty-image-placeholder {
-          width: 150px;
-          height: 150px;
+          width: 100px;
+          height: 100px;
           border-radius: 50%;
           background-color: #e9ecef;
           display: flex;
-          flex-direction: column;
           justify-content: center;
           align-items: center;
           color: #6c757d;
-        }
-
-        .empty-image-placeholder i {
-          font-size: 3rem;
-          margin-bottom: 0.5rem;
+          font-size: 2.5rem;
         }
 
         .profile-prompt {
           text-align: center;
           color: #6c757d;
-          margin-bottom: 1.5rem;
+          margin-bottom: 1rem;
           font-style: italic;
-          line-height: 1.5;
+          font-size: 0.9rem;
+          line-height: 1.4;
         }
 
         .create-profile-btn {
@@ -443,14 +414,14 @@ const LawyerDashboard = () => {
           background: linear-gradient(135deg, #4a6580 0%, #2c3e50 100%);
           color: white;
           border: none;
-          padding: 0.8rem;
+          padding: 0.7rem;
           border-radius: 4px;
-          font-size: 1rem;
+          font-size: 0.9rem;
           cursor: pointer;
           display: flex;
           justify-content: center;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.4rem;
           transition: opacity 0.3s;
         }
 
@@ -461,41 +432,41 @@ const LawyerDashboard = () => {
         .dashboard-stats {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
-          gap: 1.5rem;
+          gap: 1rem;
         }
 
         .stat-card {
           background-color: white;
           border-radius: 8px;
-          padding: 1.5rem;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          padding: 1rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
           display: flex;
           align-items: center;
-          gap: 1rem;
+          gap: 0.8rem;
         }
 
         .stat-icon {
-          width: 50px;
-          height: 50px;
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
           background-color: #e9f2ff;
           display: flex;
           justify-content: center;
           align-items: center;
           color: #4a6580;
-          font-size: 1.2rem;
+          font-size: 1rem;
         }
 
         .stat-info h3 {
           color: #6c757d;
-          font-size: 0.9rem;
-          margin-bottom: 0.5rem;
+          font-size: 0.8rem;
+          margin-bottom: 0.2rem;
           font-weight: normal;
         }
 
         .stat-number {
           color: #2c3e50;
-          font-size: 1.5rem;
+          font-size: 1.3rem;
           font-weight: bold;
           margin: 0;
         }
@@ -509,6 +480,7 @@ const LawyerDashboard = () => {
           align-items: center;
           gap: 0.5rem;
           color: #6c757d;
+          font-size: 0.9rem;
         }
 
         /* Loading Styles */
@@ -522,31 +494,30 @@ const LawyerDashboard = () => {
 
         .loading-content {
           text-align: center;
-          max-width: 500px;
+          max-width: 400px;
           width: 100%;
         }
 
         .loading-animation {
           background: white;
-          padding: 3rem 2rem;
-          border-radius: 16px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          padding: 2rem 1.5rem;
+          border-radius: 12px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
         }
 
         .loading-spinner {
           position: relative;
-          width: 80px;
-          height: 80px;
-          margin: 0 auto 2rem;
+          width: 60px;
+          height: 60px;
+          margin: 0 auto 1.5rem;
         }
 
         .spinner-ring {
           position: absolute;
           width: 100%;
           height: 100%;
-          border: 3px solid transparent;
-          border-top: 3px solid #2c3e50;
+          border: 2px solid transparent;
+          border-top: 2px solid #2c3e50;
           border-radius: 50%;
           animation: spin 1.5s linear infinite;
         }
@@ -576,8 +547,8 @@ const LawyerDashboard = () => {
 
         .spinner-center {
           position: absolute;
-          width: 20px;
-          height: 20px;
+          width: 15px;
+          height: 15px;
           background: #2c3e50;
           border-radius: 50%;
           top: 50%;
@@ -586,120 +557,122 @@ const LawyerDashboard = () => {
         }
 
         @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
 
         .loading-text h2 {
           color: #2c3e50;
-          margin-bottom: 0.5rem;
-          font-size: 1.5rem;
+          margin-bottom: 0.3rem;
+          font-size: 1.2rem;
           font-weight: 600;
         }
 
         .loading-text p {
           color: #7b8a9b;
-          font-size: 1rem;
-          margin-bottom: 2rem;
+          font-size: 0.85rem;
+          margin-bottom: 1.5rem;
         }
 
         .loading-progress {
-          margin-top: 2rem;
+          margin-top: 1.5rem;
         }
 
         .progress-bar {
           width: 100%;
-          height: 6px;
+          height: 4px;
           background: #e9ecef;
-          border-radius: 3px;
+          border-radius: 2px;
           overflow: hidden;
-          margin-bottom: 0.5rem;
         }
 
         .progress-fill {
           height: 100%;
           background: linear-gradient(90deg, #2c3e50, #4a6580);
-          border-radius: 3px;
+          border-radius: 2px;
           animation: progress 2s ease-in-out infinite;
         }
 
         @keyframes progress {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-
-        .progress-text {
-          color: #6c757d;
-          font-size: 0.9rem;
-          font-weight: 500;
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
         }
 
         .profile-details {
           background-color: white;
-          border-radius: 12px;
-          padding: 2rem;
-          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+          border-radius: 10px;
+          padding: 1.5rem;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
           text-align: center;
         }
 
         .profile-image {
           display: flex;
           justify-content: center;
-          margin-bottom: 1.5rem;
+          margin-bottom: 1rem;
         }
 
         .profile-img {
-          width: 150px;
-          height: 150px;
+          width: 100px;
+          height: 100px;
           border-radius: 50%;
           object-fit: cover;
-          border: 4px solid #4a6580;
+          border: 3px solid #4a6580;
         }
 
         .profile-details h3 {
-          font-size: 1.5rem;
+          font-size: 1.3rem;
           font-weight: bold;
           color: #2c3e50;
-          margin-bottom: 1rem;
+          margin-bottom: 0.8rem;
         }
 
         .profile-info-grid {
           display: grid;
           grid-template-columns: 1fr;
-          gap: 1rem;
-          margin: 1.5rem 0;
+          gap: 0.6rem;
+          margin: 1rem 0;
           text-align: left;
         }
 
         .info-item {
           display: flex;
           align-items: center;
-          gap: 0.8rem;
+          gap: 0.6rem;
           background: #f8f9fa;
-          padding: 0.8rem;
-          border-radius: 6px;
+          padding: 0.6rem;
+          border-radius: 5px;
           color: #4a6580;
-          font-size: 0.95rem;
+          font-size: 0.85rem;
         }
 
         .info-item i {
           color: #2c3e50;
-          font-size: 1.1rem;
+          font-size: 0.95rem;
+          width: 18px;
         }
 
         .edit-profile-btn {
           background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
           color: white;
           border: none;
-          padding: 0.8rem 1.2rem;
-          border-radius: 6px;
-          font-size: 1rem;
+          padding: 0.6rem 1rem;
+          border-radius: 5px;
+          font-size: 0.9rem;
           cursor: pointer;
           display: inline-flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.4rem;
           transition: opacity 0.3s;
-          margin-top: 1rem;
+          margin-top: 0.5rem;
         }
 
         .edit-profile-btn:hover {
@@ -723,27 +696,27 @@ const LawyerDashboard = () => {
 
           .header-content {
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.8rem;
           }
 
           .dashboard-nav {
             order: 3;
             overflow-x: auto;
             width: 100%;
-            padding-bottom: 0.5rem;
+            padding-bottom: 0.3rem;
           }
 
           .loading-animation {
-            padding: 2rem 1rem;
+            padding: 1.5rem 1rem;
           }
 
           .loading-text h2 {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
           }
 
           .loading-spinner {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
           }
         }
       `}</style>

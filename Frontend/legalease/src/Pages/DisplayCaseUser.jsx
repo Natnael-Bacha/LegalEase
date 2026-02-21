@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Link, useNavigate } from 'react-router';
-import { PropagateLoader } from 'react-spinners';
-
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Link, useNavigate } from "react-router";
+import { PropagateLoader } from "react-spinners";
 
 const DisplayCaseUser = () => {
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [selectedCase, setSelectedCase] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [previewFile, setPreviewFile] = useState(null);
@@ -16,22 +15,32 @@ const DisplayCaseUser = () => {
   useEffect(() => {
     const fetchCases = async () => {
       try {
-        const verifyRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clientAuth/verifyUser`, {
-          withCredentials: true
-        });
+        const verifyRes = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/clientAuth/verifyUser`,
+          {
+            withCredentials: true,
+          },
+        );
 
         if (verifyRes.data.status) {
           try {
-            const casesRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/cases/getUserCase`, {
-              withCredentials: true
-            });
+            const casesRes = await axios.get(
+              `${import.meta.env.VITE_BACKEND_URL}/cases/getUserCase`,
+              {
+                withCredentials: true,
+              },
+            );
 
-            if (casesRes.data.status && casesRes.data.cases && casesRes.data.cases.length > 0) {
+            if (
+              casesRes.data.status &&
+              casesRes.data.cases &&
+              casesRes.data.cases.length > 0
+            ) {
               setCases(casesRes.data.cases);
-              setError('');
+              setError("");
             } else {
               setCases([]);
-              setError('');
+              setError("");
             }
           } catch (error) {
             console.error("Error fetching cases:", error);
@@ -52,41 +61,43 @@ const DisplayCaseUser = () => {
   }, []);
 
   const formatDate = (dateString) => {
-    const options = { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      'In Progress': { class: 'status-progress', text: 'In Progress' },
-      'Completed': { class: 'status-completed', text: 'Completed' },
-      'Rejected': { class: 'status-rejected', text: 'Rejected' }
+      "In Progress": { class: "status-progress", text: "In Progress" },
+      Completed: { class: "status-completed", text: "Completed" },
+      Rejected: { class: "status-rejected", text: "Rejected" },
     };
-    
+
     const config = statusConfig[status] || null;
-    return config ? <span className={`status-badge ${config.class}`}>{config.text}</span> : null;
+    return config ? (
+      <span className={`status-badge ${config.class}`}>{config.text}</span>
+    ) : null;
   };
 
   const handleSignOut = async () => {
     try {
       await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clientAuth/logout`);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     } finally {
-      navigate('/userSignin');
+      navigate("/userSignin");
     }
   };
 
   const handleViewDetails = (caseItem) => {
     setSelectedCase(caseItem);
     setShowModal(true);
-    setPreviewFile(null);  // Reset preview when opening a new case
+    setPreviewFile(null); // Reset preview when opening a new case
   };
 
   const closeModal = () => {
@@ -95,49 +106,49 @@ const DisplayCaseUser = () => {
     setPreviewFile(null);
   };
 
- const downloadFile = (fileData, fileName, fileType) => {
-  if (!fileData) return;
+  const downloadFile = (fileData, fileName, fileType) => {
+    if (!fileData) return;
 
-  try {
-    let base64Data;
+    try {
+      let base64Data;
 
-    // Ensure it's a valid base64 Data URL
-    if (fileData.startsWith("data:")) {
-      base64Data = fileData;
-    } else {
-      base64Data = `data:${fileType};base64,${fileData}`;
+      // Ensure it's a valid base64 Data URL
+      if (fileData.startsWith("data:")) {
+        base64Data = fileData;
+      } else {
+        base64Data = `data:${fileType};base64,${fileData}`;
+      }
+
+      // Fetch converts base64 data URL into a blob properly
+      fetch(base64Data)
+        .then((res) => res.blob())
+        .then((blob) => {
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = fileName || "case-file";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(link.href);
+        });
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      setError("Failed to download file");
     }
-
-    // Fetch converts base64 data URL into a blob properly
-    fetch(base64Data)
-      .then(res => res.blob())
-      .then(blob => {
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = fileName || "case-file";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-      });
-  } catch (error) {
-    console.error("Error downloading file:", error);
-    setError("Failed to download file");
-  }
-};
+  };
 
   const getFileIcon = (fileType) => {
-    if (fileType?.includes('pdf')) return 'fas fa-file-pdf';
-    if (fileType?.includes('image')) return 'fas fa-file-image';
-    if (fileType?.includes('word')) return 'fas fa-file-word';
-    return 'fas fa-file';
+    if (fileType?.includes("pdf")) return "fas fa-file-pdf";
+    if (fileType?.includes("image")) return "fas fa-file-image";
+    if (fileType?.includes("word")) return "fas fa-file-word";
+    return "fas fa-file";
   };
 
   const getFileTypeName = (fileType) => {
-    if (fileType?.includes('pdf')) return 'PDF Document';
-    if (fileType?.includes('image')) return 'Image File';
-    if (fileType?.includes('word')) return 'Word Document';
-    return 'Document';
+    if (fileType?.includes("pdf")) return "PDF Document";
+    if (fileType?.includes("image")) return "Image File";
+    if (fileType?.includes("word")) return "Word Document";
+    return "Document";
   };
 
   const handlePreviewFile = (fileData, fileType) => {
@@ -146,37 +157,49 @@ const DisplayCaseUser = () => {
 
   const renderFilePreview = () => {
     if (!previewFile) return null;
-    
-    if (previewFile.type.includes('pdf')) {
+
+    if (previewFile.type.includes("pdf")) {
       return (
         <div className="pdf-preview">
-          <iframe 
-            src={previewFile.data} 
-            className="pdf-iframe" 
+          <iframe
+            src={previewFile.data}
+            className="pdf-iframe"
             title="PDF Preview"
           />
           <div className="preview-actions">
-            <button 
+            <button
               className="download-btn"
-              onClick={() => downloadFile(previewFile.data, 'case-document.pdf', previewFile.type)}
+              onClick={() =>
+                downloadFile(
+                  previewFile.data,
+                  "case-document.pdf",
+                  previewFile.type,
+                )
+              }
             >
               <i className="fas fa-download"></i> Download PDF
             </button>
           </div>
         </div>
       );
-    } else if (previewFile.type.includes('image')) {
+    } else if (previewFile.type.includes("image")) {
       return (
         <div className="image-preview-modal">
-          <img 
-            src={previewFile.data} 
-            alt="Case document" 
+          <img
+            src={previewFile.data}
+            alt="Case document"
             className="preview-image"
           />
           <div className="preview-actions">
-            <button 
+            <button
               className="download-btn"
-              onClick={() => downloadFile(previewFile.data, 'case-image.jpg', previewFile.type)}
+              onClick={() =>
+                downloadFile(
+                  previewFile.data,
+                  "case-image.jpg",
+                  previewFile.type,
+                )
+              }
             >
               <i className="fas fa-download"></i> Download Image
             </button>
@@ -187,11 +210,15 @@ const DisplayCaseUser = () => {
       return (
         <div className="unsupported-preview">
           <i className="fas fa-exclamation-triangle"></i>
-          <p>Preview not available for this file type. Please download to view.</p>
+          <p>
+            Preview not available for this file type. Please download to view.
+          </p>
           <div className="preview-actions">
-            <button 
+            <button
               className="download-btn"
-              onClick={() => downloadFile(previewFile.data, 'case-file', previewFile.type)}
+              onClick={() =>
+                downloadFile(previewFile.data, "case-file", previewFile.type)
+              }
             >
               <i className="fas fa-download"></i> Download File
             </button>
@@ -210,13 +237,15 @@ const DisplayCaseUser = () => {
             <span>Justice Partners</span>
           </div>
           <nav className="dashboard-nav">
-            <button className="nav-item" onClick={() => navigate('/userPage')}>
+            <button className="nav-item" onClick={() => navigate("/userPage")}>
               Find Lawyers
             </button>
-            
-             <button className="nav-item active">My Cases</button>
 
-             <Link to={'/futureWork'}><button className="nav-item ">Future Work</button></Link>
+            <button className="nav-item active">My Cases</button>
+
+            <Link to={"/futureWork"}>
+              <button className="nav-item ">Future Work</button>
+            </Link>
           </nav>
           <button className="sign-out-btn" onClick={handleSignOut}>
             <i className="fas fa-sign-out-alt"></i> Logout
@@ -253,7 +282,10 @@ const DisplayCaseUser = () => {
             <i className="fas fa-exclamation-triangle"></i>
             <h2>Error Loading Cases</h2>
             <p>{error}</p>
-            <button className="retry-btn" onClick={() => window.location.reload()}>
+            <button
+              className="retry-btn"
+              onClick={() => window.location.reload()}
+            >
               Try Again
             </button>
           </div>
@@ -270,17 +302,20 @@ const DisplayCaseUser = () => {
                   <i className="fas fa-folder-open"></i>
                 </div>
                 <h3>No Cases Yet</h3>
-                <p>You haven't created any legal cases yet. Start by selecting a lawyer to handle your case.</p>
+                <p>
+                  You haven't created any legal cases yet. Start by selecting a
+                  lawyer to handle your case.
+                </p>
                 <div className="no-cases-actions">
-                  <button 
+                  <button
                     className="find-lawyer-btn"
-                    onClick={() => navigate('/userPage')}
+                    onClick={() => navigate("/userPage")}
                   >
                     <i className="fas fa-search"></i> Find a Lawyer
                   </button>
-                  <button 
+                  <button
                     className="learn-more-btn"
-                    onClick={() => navigate('/futureWork')}
+                    onClick={() => navigate("/futureWork")}
                   >
                     <i className="fas fa-info-circle"></i> Learn More
                   </button>
@@ -294,16 +329,16 @@ const DisplayCaseUser = () => {
                       <h3>{caseItem.caseTitle}</h3>
                       {getStatusBadge(caseItem.status)}
                     </div>
-                    
+
                     <div className="case-type">
                       <i className="fas fa-tag"></i>
                       <span>{caseItem.caseType}</span>
                     </div>
-                    
+
                     <div className="case-description">
                       <p>{caseItem.caseDiscription}</p>
                     </div>
-                    
+
                     {caseItem.caseFile && (
                       <div className="file-attachment">
                         <div className="file-preview">
@@ -316,9 +351,15 @@ const DisplayCaseUser = () => {
                               {Math.round(caseItem.caseFile.length / 1024)} KB
                             </span>
                           </div>
-                          <button 
+                          <button
                             className="download-icon-btn"
-                            onClick={() => downloadFile(caseItem.caseFile, `case-file-${caseItem.caseTitle}`, caseItem.caseFileType)}
+                            onClick={() =>
+                              downloadFile(
+                                caseItem.caseFile,
+                                `case-file-${caseItem.caseTitle}`,
+                                caseItem.caseFileType,
+                              )
+                            }
                             title="Download file"
                           >
                             <i className="fas fa-download"></i>
@@ -326,8 +367,7 @@ const DisplayCaseUser = () => {
                         </div>
                       </div>
                     )}
-                       
-                    
+
                     <div className="case-details">
                       <div className="detail-row">
                         <div className="detail-item">
@@ -335,11 +375,11 @@ const DisplayCaseUser = () => {
                           <div className="detail-content">
                             <span className="detail-label">Lawyer</span>
                             <span className="detail-value">
-                              {caseItem.lawyer?.fullName || 'Not assigned'}
+                              {caseItem.lawyer?.fullName || "Not assigned"}
                             </span>
                           </div>
                         </div>
-                        
+
                         <div className="detail-item">
                           <i className="fas fa-calendar-alt"></i>
                           <div className="detail-content">
@@ -350,27 +390,29 @@ const DisplayCaseUser = () => {
                           </div>
                         </div>
                       </div>
-                      
+
                       {caseItem.appointmentTime && (
                         <div className="detail-item full-width">
                           <i className="fas fa-clock"></i>
                           <div className="detail-content">
                             <span className="detail-label">Appointment</span>
                             <span className="detail-value">
-                              {caseItem.appointmentTime.availableDate ? 
-                                formatDate(caseItem.appointmentTime.availableDate) : 
-                                'Scheduled'
-                              }
+                              {caseItem.appointmentTime.availableDate
+                                ? formatDate(
+                                    caseItem.appointmentTime.availableDate,
+                                  )
+                                : "Scheduled"}
                             </span>
                           </div>
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="case-actions">
-                      <button 
+                      <button
                         className="action-btn view-btn"
-                        onClick={() => handleViewDetails(caseItem)}>
+                        onClick={() => handleViewDetails(caseItem)}
+                      >
                         <i className="fas fa-eye"></i> View Details
                       </button>
                     </div>
@@ -391,39 +433,41 @@ const DisplayCaseUser = () => {
                 <i className="fas fa-times"></i>
               </button>
             </div>
-            
+
             <div className="modal-body">
               <div className="modal-section">
                 <h3>Case Details</h3>
                 <div className="detail-grid">
                   <div className="detail-item">
                     <span className="detail-label">Case Type</span>
-                    <span className="detail-value">{selectedCase.caseType}</span>
+                    <span className="detail-value">
+                      {selectedCase.caseType}
+                    </span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <span className="detail-label">Created On</span>
                     <span className="detail-value">
                       {formatDate(selectedCase.createdAt)}
                     </span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <span className="detail-label">Assigned Lawyer</span>
                     <span className="detail-value">
-                      {selectedCase.lawyer?.fullName || 'Not assigned'}
+                      {selectedCase.lawyer?.fullName || "Not assigned"}
                     </span>
                   </div>
                 </div>
               </div>
-              
+
               <div className="modal-section">
                 <h3>Case Description</h3>
                 <p className="case-description-full">
                   {selectedCase.caseDiscription}
                 </p>
               </div>
-              
+
               {selectedCase.caseFile && (
                 <div className="modal-section">
                   <h3>Attached File</h3>
@@ -438,20 +482,26 @@ const DisplayCaseUser = () => {
                           {Math.round(selectedCase.caseFile.length / 1024)} KB
                         </span>
                       </div>
-                      <button 
+                      <button
                         className="download-btn"
-                        onClick={() => downloadFile(selectedCase.caseFile, `case-file-${selectedCase.caseTitle}`, selectedCase.caseFileType)}
+                        onClick={() =>
+                          downloadFile(
+                            selectedCase.caseFile,
+                            `case-file-${selectedCase.caseTitle}`,
+                            selectedCase.caseFileType,
+                          )
+                        }
                       >
                         <i className="fas fa-download"></i> Download
                       </button>
                     </div>
-                    
+
                     {previewFile && renderFilePreview()}
                   </div>
                 </div>
               )}
             </div>
-            
+
             <div className="modal-footer">
               <button className="modal-btn close-btn" onClick={closeModal}>
                 Close
@@ -465,15 +515,15 @@ const DisplayCaseUser = () => {
         .cases-container {
           min-height: 100vh;
           background-color: #f8f9fa;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
         .dashboard-header {
           background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
           color: white;
           padding: 1rem 0;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         .header-content {
           display: flex;
           justify-content: space-between;
@@ -482,41 +532,42 @@ const DisplayCaseUser = () => {
           margin: 0 auto;
           padding: 0 2rem;
         }
-        
+
         .logo {
           display: flex;
           align-items: center;
           font-size: 1.5rem;
           font-weight: bold;
         }
-        
+
         .logo i {
           margin-right: 0.5rem;
           font-size: 1.8rem;
         }
-        
+
         .dashboard-nav {
           display: flex;
           gap: 1.5rem;
         }
-        
+
         .nav-item {
           background: none;
           border: none;
-          color: rgba(255,255,255,0.8);
+          color: rgba(255, 255, 255, 0.8);
           cursor: pointer;
           padding: 0.5rem 0;
           font-size: 1rem;
           position: relative;
           transition: color 0.3s;
         }
-        
-        .nav-item:hover, .nav-item.active {
+
+        .nav-item:hover,
+        .nav-item.active {
           color: white;
         }
-        
+
         .nav-item.active::after {
-          content: '';
+          content: "";
           position: absolute;
           bottom: 0;
           left: 0;
@@ -524,7 +575,7 @@ const DisplayCaseUser = () => {
           height: 2px;
           background-color: white;
         }
-        
+
         .sign-out-btn {
           background: rgba(255, 255, 255, 0.1);
           color: white;
@@ -537,18 +588,18 @@ const DisplayCaseUser = () => {
           gap: 0.5rem;
           transition: all 0.3s;
         }
-        
+
         .sign-out-btn:hover {
           background: rgba(255, 255, 255, 0.2);
         }
-        
+
         .cases-main-content {
           max-width: 1200px;
           margin: 2rem auto;
           padding: 0 2rem;
           min-height: 60vh;
         }
-        
+
         /* Loading Styles */
         .loading-container {
           display: flex;
@@ -624,8 +675,12 @@ const DisplayCaseUser = () => {
         }
 
         @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
 
         .loading-text h2 {
@@ -662,8 +717,12 @@ const DisplayCaseUser = () => {
         }
 
         @keyframes progress {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
         }
 
         .progress-text {
@@ -671,7 +730,7 @@ const DisplayCaseUser = () => {
           font-size: 0.9rem;
           font-weight: 500;
         }
-        
+
         .cases-header {
           background: white;
           border-radius: 12px;
@@ -683,19 +742,19 @@ const DisplayCaseUser = () => {
           align-items: center;
           text-align: center;
         }
-        
+
         .cases-header h1 {
           color: #2c3e50;
           margin-bottom: 0.5rem;
           font-size: 2.2rem;
         }
-        
+
         .cases-header p {
           color: #7b8a9b;
           margin-bottom: 1.5rem;
           max-width: 600px;
         }
-        
+
         .create-case-btn {
           background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
           color: white;
@@ -711,13 +770,13 @@ const DisplayCaseUser = () => {
           transition: all 0.3s;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         .create-case-btn:hover {
           opacity: 0.9;
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
-        
+
         /* Enhanced No Cases Styles */
         .no-cases {
           text-align: center;
@@ -807,28 +866,30 @@ const DisplayCaseUser = () => {
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        
+
         .cases-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
           gap: 1.5rem;
         }
-        
+
         .case-card {
           background: white;
           border-radius: 12px;
           overflow: hidden;
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          transition:
+            transform 0.3s ease,
+            box-shadow 0.3s ease;
           display: flex;
           flex-direction: column;
         }
-        
+
         .case-card:hover {
           transform: translateY(-5px);
           box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
         }
-        
+
         .case-header {
           padding: 1.5rem;
           border-bottom: 1px solid #e9ecef;
@@ -836,7 +897,7 @@ const DisplayCaseUser = () => {
           justify-content: space-between;
           align-items: flex-start;
         }
-        
+
         .case-header h3 {
           color: #2c3e50;
           margin: 0;
@@ -844,7 +905,7 @@ const DisplayCaseUser = () => {
           flex: 1;
           margin-right: 1rem;
         }
-        
+
         .status-badge {
           padding: 0.3rem 0.8rem;
           border-radius: 20px;
@@ -852,22 +913,22 @@ const DisplayCaseUser = () => {
           font-weight: 600;
           white-space: nowrap;
         }
-        
+
         .status-progress {
           background-color: #cce5ff;
           color: #004085;
         }
-        
+
         .status-completed {
           background-color: #d4edda;
           color: #155724;
         }
-        
+
         .status-rejected {
           background-color: #f8d7da;
           color: #721c24;
         }
-        
+
         .case-type {
           padding: 0.5rem 1.5rem;
           background-color: #f0f4f8;
@@ -877,12 +938,12 @@ const DisplayCaseUser = () => {
           color: #4a6580;
           font-weight: 500;
         }
-        
+
         .case-description {
           padding: 1rem 1.5rem;
           flex: 1;
         }
-        
+
         .case-description p {
           color: #5a6c7d;
           margin: 0;
@@ -891,13 +952,13 @@ const DisplayCaseUser = () => {
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
-        
+
         /* File Attachment Styles */
         .file-attachment {
           padding: 0 1.5rem;
           margin-bottom: 1rem;
         }
-        
+
         .file-preview {
           display: flex;
           align-items: center;
@@ -908,29 +969,29 @@ const DisplayCaseUser = () => {
           border: 1px solid #e9ecef;
           position: relative;
         }
-        
+
         .file-preview i {
           font-size: 1.5rem;
           color: #e74c3c;
         }
-        
+
         .file-info {
           display: flex;
           flex-direction: column;
           flex: 1;
         }
-        
+
         .file-type {
           font-size: 0.9rem;
           font-weight: 600;
           color: #2c3e50;
         }
-        
+
         .file-size {
           font-size: 0.8rem;
           color: #6c757d;
         }
-        
+
         .download-icon-btn {
           background: none;
           border: none;
@@ -940,23 +1001,23 @@ const DisplayCaseUser = () => {
           border-radius: 4px;
           transition: all 0.2s;
         }
-        
+
         .download-icon-btn:hover {
           background-color: #e9ecef;
           color: #2c3e50;
         }
-        
+
         .case-details {
           padding: 0 1.5rem 1rem;
         }
-        
+
         .detail-row {
           display: flex;
           gap: 1rem;
           margin-bottom: 1rem;
           justify-content: flex-start;
         }
-        
+
         .detail-item {
           display: flex;
           align-items: flex-start;
@@ -964,18 +1025,18 @@ const DisplayCaseUser = () => {
           flex: 0 1 auto;
           min-width: 0;
         }
-        
+
         .detail-item.full-width {
           flex: 0 0 100%;
         }
-        
+
         .detail-content {
           display: flex;
           flex-direction: column;
           flex: 1;
           min-width: 0;
         }
-        
+
         .detail-label {
           font-size: 0.75rem;
           color: #6c757d;
@@ -983,7 +1044,7 @@ const DisplayCaseUser = () => {
           font-weight: 500;
           text-align: left;
         }
-        
+
         .detail-value {
           font-size: 0.9rem;
           color: #2c3e50;
@@ -991,14 +1052,14 @@ const DisplayCaseUser = () => {
           text-align: left;
           word-wrap: break-word;
         }
-        
+
         .case-actions {
           padding: 1rem 1.5rem;
           border-top: 1px solid #e9ecef;
           display: flex;
           gap: 0.8rem;
         }
-        
+
         .action-btn {
           padding: 0.8rem;
           border-radius: 6px;
@@ -1012,19 +1073,19 @@ const DisplayCaseUser = () => {
           transition: all 0.2s;
           width: 100%;
         }
-        
+
         .view-btn {
           background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
           color: white;
           border: none;
         }
-        
+
         .view-btn:hover {
           opacity: 0.9;
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
-        
+
         /* Modal Styles */
         .modal-overlay {
           position: fixed;
@@ -1039,7 +1100,7 @@ const DisplayCaseUser = () => {
           z-index: 1000;
           padding: 2rem;
         }
-        
+
         .modal-content {
           background: white;
           border-radius: 12px;
@@ -1049,7 +1110,7 @@ const DisplayCaseUser = () => {
           overflow-y: auto;
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
-        
+
         .modal-header {
           display: flex;
           justify-content: space-between;
@@ -1061,13 +1122,13 @@ const DisplayCaseUser = () => {
           background: white;
           z-index: 10;
         }
-        
+
         .modal-header h2 {
           color: #2c3e50;
           margin: 0;
           font-size: 1.5rem;
         }
-        
+
         .modal-close {
           background: none;
           border: none;
@@ -1078,20 +1139,20 @@ const DisplayCaseUser = () => {
           border-radius: 4px;
           transition: all 0.2s;
         }
-        
+
         .modal-close:hover {
           color: #e74c3c;
           background-color: #f8f9fa;
         }
-        
+
         .modal-body {
           padding: 2rem;
         }
-        
+
         .modal-section {
           margin-bottom: 2rem;
         }
-        
+
         .modal-section h3 {
           color: #2c3e50;
           margin-bottom: 1rem;
@@ -1099,30 +1160,30 @@ const DisplayCaseUser = () => {
           border-bottom: 2px solid #e9ecef;
           padding-bottom: 0.5rem;
         }
-        
+
         .detail-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
           gap: 1rem;
         }
-        
+
         .detail-item {
           display: flex;
           flex-direction: column;
           gap: 0.3rem;
         }
-        
+
         .case-description-full {
           color: 5a6c7d;
           line-height: 1.6;
           margin: 0;
         }
-        
+
         /* File Attachment in Modal */
         .file-attachment-modal {
           margin-top: 1rem;
         }
-        
+
         .file-preview-modal {
           display: flex;
           align-items: center;
@@ -1133,19 +1194,20 @@ const DisplayCaseUser = () => {
           border: 1px solid #e9ecef;
           margin-bottom: 1rem;
         }
-        
+
         .file-preview-modal i {
           font-size: 2rem;
           color: #e74c3c;
         }
-        
+
         .file-name {
           font-size: 1rem;
           font-weight: 600;
           color: #2c3e50;
         }
-        
-        .download-btn, .preview-btn {
+
+        .download-btn,
+        .preview-btn {
           color: white;
           border: none;
           padding: 0.5rem 1rem;
@@ -1156,21 +1218,22 @@ const DisplayCaseUser = () => {
           gap: 0.5rem;
           transition: all 0.2s;
         }
-        
+
         .download-btn {
           background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
         }
-        
+
         .preview-btn {
           background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
           margin-left: 0.5rem;
         }
-        
-        .download-btn:hover, .preview-btn:hover {
+
+        .download-btn:hover,
+        .preview-btn:hover {
           opacity: 0.9;
           transform: translateY(-1px);
         }
-        
+
         /* PDF Preview */
         .pdf-preview {
           margin-top: 1rem;
@@ -1178,13 +1241,13 @@ const DisplayCaseUser = () => {
           border-radius: 8px;
           overflow: hidden;
         }
-        
+
         .pdf-iframe {
           width: 100%;
           height: 400px;
           border: none;
         }
-        
+
         .preview-actions {
           padding: 1rem;
           background-color: #f8f9fa;
@@ -1192,20 +1255,20 @@ const DisplayCaseUser = () => {
           display: flex;
           justify-content: center;
         }
-        
+
         /* Image Preview */
         .image-preview-modal {
           margin-top: 1rem;
           text-align: center;
         }
-        
+
         .preview-image {
           max-width: 100%;
           max-height: 400px;
           border-radius: 8px;
           border: 1px solid #e9ecef;
         }
-        
+
         /* Unsupported Preview */
         .unsupported-preview {
           text-align: center;
@@ -1215,20 +1278,20 @@ const DisplayCaseUser = () => {
           margin-top: 1rem;
           border: 1px solid #e9ecef;
         }
-        
+
         .unsupported-preview i {
           font-size: 2rem;
           color: #f39c12;
           margin-bottom: 1rem;
         }
-        
+
         .modal-footer {
           padding: 1.5rem 2rem;
           border-top: 1px solid #e9ecef;
           display: flex;
           justify-content: flex-end;
         }
-        
+
         .modal-btn {
           padding: 0.8rem 1.5rem;
           border-radius: 6px;
@@ -1237,17 +1300,17 @@ const DisplayCaseUser = () => {
           cursor: pointer;
           transition: all 0.2s;
         }
-        
+
         .close-btn {
           background: #6c757d;
           color: white;
           border: none;
         }
-        
+
         .close-btn:hover {
           background: #5a6268;
         }
-        
+
         .error-container {
           text-align: center;
           padding: 3rem;
@@ -1257,23 +1320,23 @@ const DisplayCaseUser = () => {
           margin: 2rem auto;
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         }
-        
+
         .error-container i {
           font-size: 3rem;
           color: #e74c3c;
           margin-bottom: 1rem;
         }
-        
+
         .error-container h2 {
           color: #2c3e50;
           margin-bottom: 1rem;
         }
-        
+
         .error-container p {
           color: #7b8a9b;
           margin-bottom: 1.5rem;
         }
-        
+
         .retry-btn {
           background: #4a6580;
           color: white;
@@ -1285,60 +1348,61 @@ const DisplayCaseUser = () => {
           cursor: pointer;
           transition: all 0.3s;
         }
-        
+
         .retry-btn:hover {
           background: #3a556c;
         }
-        
+
         @media (max-width: 768px) {
           .header-content {
             flex-direction: column;
             gap: 1rem;
           }
-          
+
           .dashboard-nav {
             order: 3;
             overflow-x: auto;
             width: 100%;
             padding-bottom: 0.5rem;
           }
-          
+
           .cases-main-content {
             padding: 0 1rem;
           }
-          
+
           .cases-grid {
             grid-template-columns: 1fr;
           }
-          
+
           .detail-row {
             flex-direction: column;
             gap: 0.8rem;
           }
-          
+
           .case-actions {
             flex-direction: column;
           }
-          
+
           .modal-overlay {
             padding: 1rem;
           }
-          
+
           .modal-content {
             max-height: 95vh;
           }
-          
+
           .file-preview-modal {
             flex-direction: column;
             text-align: center;
           }
-          
-          .download-btn, .preview-btn {
+
+          .download-btn,
+          .preview-btn {
             margin-left: 0;
             margin-top: 1rem;
             width: 100%;
           }
-          
+
           .pdf-iframe {
             height: 300px;
           }
@@ -1369,15 +1433,19 @@ const DisplayCaseUser = () => {
             align-items: center;
           }
 
-          .find-lawyer-btn, .learn-more-btn {
+          .find-lawyer-btn,
+          .learn-more-btn {
             width: 100%;
             max-width: 250px;
             justify-content: center;
           }
         }
       `}</style>
-      
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      />
     </div>
   );
 };

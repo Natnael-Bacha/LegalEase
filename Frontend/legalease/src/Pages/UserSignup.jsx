@@ -1,88 +1,92 @@
-import axios from 'axios';
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import axios from "axios";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router";
 
 const UserSignup = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    middleName: '',
-    lastName: '',
-    email: '',
-    phoneNumber: '',   
-    password: '',
-    confirmPassword: ''
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    password: "",
+    confirmPassword: "",
   });
-  
+
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   const validateField = (name, value) => {
     const newErrors = { ...errors };
 
     switch (name) {
-      case 'firstName':
+      case "firstName":
         if (!value.trim()) {
-          newErrors.firstName = 'First name is required';
+          newErrors.firstName = "First name is required";
         } else {
           delete newErrors.firstName;
         }
         break;
 
-      case 'middleName':
+      case "middleName":
         if (!value.trim()) {
-          newErrors.middleName = 'Middle name is required';
+          newErrors.middleName = "Middle name is required";
         } else {
           delete newErrors.middleName;
         }
         break;
 
-      case 'lastName':
+      case "lastName":
         if (!value.trim()) {
-          newErrors.lastName = 'Last name is required';
+          newErrors.lastName = "Last name is required";
         } else {
           delete newErrors.lastName;
         }
         break;
 
-      case 'email':
+      case "email":
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!value) {
-          newErrors.email = 'Email is required';
+          newErrors.email = "Email is required";
         } else if (!emailRegex.test(value)) {
-          newErrors.email = 'Please enter a valid email address';
+          newErrors.email = "Please enter a valid email address";
         } else {
           delete newErrors.email;
         }
         break;
 
-      case 'phoneNumber':
+      case "phoneNumber":
         const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
         if (!value) {
-          newErrors.phoneNumber = 'Phone number is required';
+          newErrors.phoneNumber = "Phone number is required";
         } else if (!phoneRegex.test(value)) {
-          newErrors.phoneNumber = 'Please enter a valid phone number';
+          newErrors.phoneNumber = "Please enter a valid phone number";
         } else {
           delete newErrors.phoneNumber;
         }
         break;
 
-      case 'password':
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      case "password":
+        const passwordRegex =
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if (!value) {
-          newErrors.password = 'Password is required';
+          newErrors.password = "Password is required";
         } else if (!passwordRegex.test(value)) {
-          newErrors.password = 'Password must be at least 8 characters with uppercase, lowercase, number, and special character';
+          newErrors.password =
+            "Password must be at least 8 characters with uppercase, lowercase, number, and special character";
         } else {
           delete newErrors.password;
         }
         break;
 
-      case 'confirmPassword':
+      case "confirmPassword":
         if (!value) {
-          newErrors.confirmPassword = 'Please confirm your password';
+          newErrors.confirmPassword = "Please confirm your password";
         } else if (value !== formData.password) {
-          newErrors.confirmPassword = 'Passwords do not match';
+          newErrors.confirmPassword = "Passwords do not match";
         } else {
           delete newErrors.confirmPassword;
         }
@@ -99,7 +103,7 @@ const UserSignup = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
     validateField(name, value);
   };
@@ -107,35 +111,39 @@ const UserSignup = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
-    if (!formData.middleName.trim()) newErrors.middleName = 'Middle name is required';
-    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+    if (!formData.firstName.trim())
+      newErrors.firstName = "First name is required";
+    if (!formData.middleName.trim())
+      newErrors.middleName = "Middle name is required";
+    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = "Please enter a valid email address";
     }
 
     const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
     if (!formData.phoneNumber) {
-      newErrors.phoneNumber = 'Phone number is required';
+      newErrors.phoneNumber = "Phone number is required";
     } else if (!phoneRegex.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = 'Please enter a valid phone number';
+      newErrors.phoneNumber = "Please enter a valid phone number";
     }
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (!passwordRegex.test(formData.password)) {
-      newErrors.password = 'Password must be at least 8 characters with uppercase, lowercase, number, and special character';
+      newErrors.password =
+        "Password must be at least 8 characters with uppercase, lowercase, number, and special character";
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = "Please confirm your password";
     } else if (formData.confirmPassword !== formData.password) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     setErrors(newErrors);
@@ -144,24 +152,35 @@ const UserSignup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-    
+
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/clientAuth/signup`, formData);
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/clientAuth/signup`,
+        formData,
+      );
       if (response.status === 200) {
-        navigate('/userSignin');
+        navigate("/userSignin");
       }
     } catch (error) {
-      console.error('Signup error:', error);
-      alert('Signup failed. Please try again.');
+      console.error("Signup error:", error);
+      alert("Signup failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   return (
@@ -173,7 +192,10 @@ const UserSignup = () => {
             <span>Justice Partners</span>
           </div>
           <h1>Find Your Legal Solution</h1>
-          <p>Create an account to connect with qualified lawyers, manage your cases, and access legal resources tailored to your needs.</p>
+          <p>
+            Create an account to connect with qualified lawyers and manage your
+            cases.
+          </p>
           <div className="benefits">
             <div className="benefit-item">
               <i className="fas fa-search"></i>
@@ -187,23 +209,19 @@ const UserSignup = () => {
               <i className="fas fa-comments"></i>
               <span>Direct Communication</span>
             </div>
-            <div className="benefit-item">
-              <i className="fas fa-clock"></i>
-              <span>24/7 Access</span>
-            </div>
           </div>
         </div>
 
         <div className="signup-form-wrapper">
           <div className="form-header">
-            <h2>Create Client Account</h2>
-            <p>Please provide your information to get started</p>
+            <h2>Create Account</h2>
+            <p>Fill in your details</p>
           </div>
 
           <form onSubmit={handleSubmit} className="user-signup-form">
             <div className="name-fields">
               <div className="input-group">
-                <label htmlFor="firstName">First Name *</label>
+                <label htmlFor="firstName">First *</label>
                 <input
                   type="text"
                   id="firstName"
@@ -213,13 +231,17 @@ const UserSignup = () => {
                   required
                   disabled={isLoading}
                   placeholder="John"
-                  className={errors.firstName ? 'error' : ''}
+                  className={errors.firstName ? "error" : ""}
                 />
-                {errors.firstName && <span className="error-message">{errors.firstName}</span>}
+                {errors.firstName && (
+                  <span className="field-error-message">
+                    {errors.firstName}
+                  </span>
+                )}
               </div>
-              
+
               <div className="input-group">
-                <label htmlFor="middleName">Middle Name *</label>
+                <label htmlFor="middleName">Middle *</label>
                 <input
                   type="text"
                   id="middleName"
@@ -229,13 +251,17 @@ const UserSignup = () => {
                   required
                   disabled={isLoading}
                   placeholder="Michael"
-                  className={errors.middleName ? 'error' : ''}
+                  className={errors.middleName ? "error" : ""}
                 />
-                {errors.middleName && <span className="error-message">{errors.middleName}</span>}
+                {errors.middleName && (
+                  <span className="field-error-message">
+                    {errors.middleName}
+                  </span>
+                )}
               </div>
-              
+
               <div className="input-group">
-                <label htmlFor="lastName">Last Name *</label>
+                <label htmlFor="lastName">Last *</label>
                 <input
                   type="text"
                   id="lastName"
@@ -245,14 +271,16 @@ const UserSignup = () => {
                   required
                   disabled={isLoading}
                   placeholder="Doe"
-                  className={errors.lastName ? 'error' : ''}
+                  className={errors.lastName ? "error" : ""}
                 />
-                {errors.lastName && <span className="error-message">{errors.lastName}</span>}
+                {errors.lastName && (
+                  <span className="field-error-message">{errors.lastName}</span>
+                )}
               </div>
             </div>
-            
+
             <div className="input-group">
-              <label htmlFor="email">Email Address *</label>
+              <label htmlFor="email">Email *</label>
               <input
                 type="email"
                 id="email"
@@ -262,13 +290,15 @@ const UserSignup = () => {
                 required
                 disabled={isLoading}
                 placeholder="your.email@example.com"
-                className={errors.email ? 'error' : ''}
+                className={errors.email ? "error" : ""}
               />
-              {errors.email && <span className="error-message">{errors.email}</span>}
+              {errors.email && (
+                <span className="field-error-message">{errors.email}</span>
+              )}
             </div>
 
             <div className="input-group">
-              <label htmlFor="phoneNumber">Phone Number *</label>
+              <label htmlFor="phoneNumber">Phone *</label>
               <input
                 type="tel"
                 id="phoneNumber"
@@ -278,91 +308,129 @@ const UserSignup = () => {
                 required
                 disabled={isLoading}
                 placeholder="+1 (555) 123-4567"
-                className={errors.phoneNumber ? 'error' : ''}
+                className={errors.phoneNumber ? "error" : ""}
               />
-              {errors.phoneNumber && <span className="error-message">{errors.phoneNumber}</span>}
+              {errors.phoneNumber && (
+                <span className="field-error-message">
+                  {errors.phoneNumber}
+                </span>
+              )}
             </div>
-            
+
             <div className="password-fields">
-              <div className="input-group">
+              <div className="input-group password-input-group">
                 <label htmlFor="password">Password *</label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  disabled={isLoading}
-                  placeholder="Create a strong password"
-                  className={errors.password ? 'error' : ''}
-                />
-                {errors.password && <span className="error-message">{errors.password}</span>}
+                <div className="password-wrapper">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    disabled={isLoading}
+                    placeholder="Create password"
+                    className={errors.password ? "error" : ""}
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={togglePasswordVisibility}
+                    tabIndex="-1"
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    <i
+                      className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}
+                    ></i>
+                  </button>
+                </div>
+                {errors.password && (
+                  <span className="field-error-message">{errors.password}</span>
+                )}
               </div>
-              
-              <div className="input-group">
-                <label htmlFor="confirmPassword">Confirm Password *</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                  disabled={isLoading}
-                  placeholder="Confirm your password"
-                  className={errors.confirmPassword ? 'error' : ''}
-                />
-                {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+
+              <div className="input-group password-input-group">
+                <label htmlFor="confirmPassword">Confirm *</label>
+                <div className="password-wrapper">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    required
+                    disabled={isLoading}
+                    placeholder="Confirm password"
+                    className={errors.confirmPassword ? "error" : ""}
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={toggleConfirmPasswordVisibility}
+                    tabIndex="-1"
+                    aria-label={
+                      showConfirmPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    <i
+                      className={`fas ${showConfirmPassword ? "fa-eye-slash" : "fa-eye"}`}
+                    ></i>
+                  </button>
+                </div>
+                {errors.confirmPassword && (
+                  <span className="field-error-message">
+                    {errors.confirmPassword}
+                  </span>
+                )}
               </div>
             </div>
-            
+
             <div className="terms-agreement">
-              <input 
-                type="checkbox" 
-                id="terms" 
-                required 
-                disabled={isLoading}
-              />
+              <input type="checkbox" id="terms" required disabled={isLoading} />
               <label htmlFor="terms">
-                I agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>
+                I agree to the <a href="/terms">Terms</a> &{" "}
+                <a href="/privacy">Privacy</a>
               </label>
             </div>
-            
-            <button 
-              type="submit" 
-              className={`signup-btn ${isLoading ? 'loading' : ''}`}
+
+            <button
+              type="submit"
+              className={`signup-btn ${isLoading ? "loading" : ""}`}
               disabled={isLoading}
             >
               {isLoading ? (
                 <>
                   <i className="fas fa-spinner fa-spin"></i>
-                  Creating Account...
+                  Creating...
                 </>
               ) : (
                 <>
                   <i className="fas fa-user-plus"></i>
-                  Create Account
+                  Sign Up
                 </>
               )}
             </button>
           </form>
 
           <div className="signin-redirect">
-            <p>Already have an account? <Link to="/userSignin">Sign In</Link></p>
+            <p>
+              Have an account? <Link to="/userSignin">Sign In</Link>
+            </p>
           </div>
 
           <div className="lawyer-redirect">
             <div className="divider">
               <span>Are you a lawyer?</span>
             </div>
-            <button 
+            <button
               className="lawyer-btn"
-              onClick={() => navigate('/lawyerSignup')}
+              onClick={() => navigate("/lawyerSignup")}
               disabled={isLoading}
             >
               <i className="fas fa-gavel"></i>
-              Register as a Lawyer
+              Register as Lawyer
             </button>
           </div>
         </div>
@@ -375,26 +443,27 @@ const UserSignup = () => {
           align-items: center;
           justify-content: center;
           background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-          padding: 2rem;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          padding: 1rem;
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+          font-size: 13px;
         }
 
         .user-signup-content {
           display: grid;
-          grid-template-columns: 1fr 1.2fr;
-          max-width: 1200px;
+          grid-template-columns: 1fr 1.1fr;
+          max-width: 850px;
           width: 100%;
           background: white;
-          border-radius: 12px;
+          border-radius: 8px;
           overflow: hidden;
-          box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
           border: 1px solid #e0e0e0;
         }
-        
+
         .signup-intro {
           background: linear-gradient(135deg, #1a3a5f 0%, #2d5a8c 100%);
           color: white;
-          padding: 3rem;
+          padding: 1.5rem;
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -403,368 +472,425 @@ const UserSignup = () => {
         }
 
         .signup-intro::before {
-          content: '';
+          content: "";
           position: absolute;
           top: 0;
           left: 0;
           right: 0;
           bottom: 0;
           background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="rgba(255,255,255,0.05)"><circle cx="50" cy="50" r="2"/><circle cx="20" cy="20" r="1"/><circle cx="80" cy="80" r="1.5"/><circle cx="30" cy="70" r="1"/><circle cx="70" cy="30" r="1.5"/></svg>');
-          background-size: 300px;
+          background-size: 200px;
         }
-        
+
         .logo {
           display: flex;
           align-items: center;
-          margin-bottom: 2rem;
-          font-size: 1.5rem;
+          margin-bottom: 1rem;
+          font-size: 1.1rem;
           font-weight: bold;
           position: relative;
           z-index: 1;
         }
-        
+
         .logo i {
-          margin-right: 0.5rem;
-          font-size: 2rem;
+          margin-right: 0.4rem;
+          font-size: 1.3rem;
           color: #ffffff;
         }
-        
+
         .signup-intro h1 {
-          font-size: 2.2rem;
-          margin-bottom: 1.5rem;
-          line-height: 1.3;
+          font-size: 1.5rem;
+          margin-bottom: 0.6rem;
+          line-height: 1.2;
           position: relative;
           z-index: 1;
           font-weight: 600;
         }
-        
+
         .signup-intro p {
-          margin-bottom: 2.5rem;
-          line-height: 1.6;
+          margin-bottom: 1rem;
+          line-height: 1.4;
           opacity: 0.95;
-          font-size: 1.1rem;
+          font-size: 0.8rem;
           position: relative;
           z-index: 1;
         }
-        
+
         .benefits {
           display: flex;
           flex-direction: column;
-          gap: 1.2rem;
+          gap: 0.5rem;
           position: relative;
           z-index: 1;
         }
-        
+
         .benefit-item {
           display: flex;
           align-items: center;
-          gap: 1rem;
-          padding: 0.8rem;
-          background: rgba(255,255,255,0.1);
-          border-radius: 8px;
+          gap: 0.6rem;
+          padding: 0.4rem;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 4px;
           backdrop-filter: blur(10px);
-          border: 1px solid rgba(255,255,255,0.2);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          font-size: 0.75rem;
         }
-        
+
         .benefit-item i {
-          font-size: 1.3rem;
-          width: 25px;
+          font-size: 0.9rem;
+          width: 18px;
           color: #ffffff;
         }
-        
-        .benefit-item span {
-          font-weight: 500;
-        }
-        
+
         .signup-form-wrapper {
-          padding: 3rem;
+          padding: 1.5rem;
           display: flex;
           flex-direction: column;
           justify-content: center;
           background: white;
         }
-        
+
         .form-header {
-          margin-bottom: 2.5rem;
+          margin-bottom: 1rem;
           text-align: center;
         }
-        
+
         .form-header h2 {
           color: #2d5a8c;
-          margin-bottom: 0.5rem;
-          font-size: 1.9rem;
+          margin-bottom: 0.2rem;
+          font-size: 1.3rem;
           font-weight: 600;
         }
-        
+
         .form-header p {
           color: #6c757d;
-          font-size: 1rem;
+          font-size: 0.75rem;
         }
-        
+
         .user-signup-form {
           display: flex;
           flex-direction: column;
-          gap: 1.5rem;
+          gap: 0.8rem;
         }
-        
+
         .name-fields {
           display: grid;
           grid-template-columns: 1fr 1fr 1fr;
-          gap: 1rem;
+          gap: 0.5rem;
         }
-        
+
         .password-fields {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 1rem;
+          gap: 0.5rem;
         }
-        
+
         .input-group {
           display: flex;
           flex-direction: column;
         }
-        
+
         .input-group label {
           color: #495057;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.2rem;
           font-weight: 500;
-          font-size: 0.95rem;
+          font-size: 0.75rem;
         }
-        
+
         .input-group input {
-          padding: 0.9rem;
-          border: 2px solid #e9ecef;
-          border-radius: 6px;
-          font-size: 1rem;
+          padding: 0.5rem;
+          border: 1.5px solid #e9ecef;
+          border-radius: 4px;
+          font-size: 0.8rem;
           transition: all 0.3s ease;
           background: #f8f9fa;
         }
-        
+
         .input-group input:focus {
           outline: none;
           border-color: #2d5a8c;
           background: white;
-          box-shadow: 0 0 0 3px rgba(45, 90, 140, 0.1);
+          box-shadow: 0 0 0 2px rgba(45, 90, 140, 0.1);
         }
-        
+
         .input-group input:disabled {
           background-color: #f1f3f4;
           cursor: not-allowed;
           opacity: 0.7;
         }
-        
+
         .input-group input.error {
-          border-color: #dc3545;
+          border-color: #d32f2f;
           background: #fff5f5;
         }
-        
-        .error-message {
-          color: #dc3545;
-          font-size: 0.85rem;
-          margin-top: 0.4rem;
-          font-weight: 500;
+
+        /* Password input styles */
+        .password-input-group {
+          position: relative;
         }
-        
-        .input-group input::placeholder {
-          color: #adb5bd;
+
+        .password-wrapper {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+
+        .password-wrapper input {
+          width: 100%;
+          padding-right: 2rem;
+        }
+
+        .password-toggle-btn {
+          position: absolute;
+          right: 0;
+          top: 0;
+          height: 100%;
+          width: 2rem;
+          background: transparent;
+          border: none;
+          color: #6c757d;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: color 0.2s ease;
+          padding: 0;
           font-size: 0.9rem;
         }
-        
+
+        .password-toggle-btn:hover {
+          color: #2d5a8c;
+        }
+
+        .password-toggle-btn:focus {
+          outline: none;
+        }
+
+        .password-toggle-btn i {
+          font-size: 0.9rem;
+        }
+
+        .field-error-message {
+          color: #d32f2f;
+          font-size: 0.65rem;
+          margin-top: 0.1rem;
+          font-weight: 500;
+        }
+
+        .input-group input::placeholder {
+          color: #adb5bd;
+          font-size: 0.7rem;
+        }
+
         .terms-agreement {
           display: flex;
           align-items: flex-start;
-          gap: 0.7rem;
-          margin: 1rem 0;
-          padding: 1rem;
+          gap: 0.5rem;
+          margin: 0.3rem 0;
+          padding: 0.5rem;
           background: #f8f9fa;
-          border-radius: 6px;
+          border-radius: 4px;
+          font-size: 0.7rem;
         }
-        
+
         .terms-agreement input[type="checkbox"] {
-          margin-top: 0.2rem;
+          margin-top: 0.1rem;
+          width: 12px;
+          height: 12px;
         }
-        
+
         .terms-agreement label {
           color: #495057;
-          font-size: 0.9rem;
-          line-height: 1.4;
+          font-size: 0.7rem;
+          line-height: 1.3;
         }
-        
+
         .terms-agreement a {
           color: #2d5a8c;
           text-decoration: none;
           font-weight: 500;
         }
-        
+
         .terms-agreement a:hover {
           text-decoration: underline;
         }
-        
+
         .signup-btn {
           background: linear-gradient(135deg, #2d5a8c 0%, #3a7bd5 100%);
           color: white;
           border: none;
-          padding: 1.1rem;
-          border-radius: 6px;
-          font-size: 1.05rem;
+          padding: 0.6rem;
+          border-radius: 4px;
+          font-size: 0.85rem;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s ease;
-          margin-top: 0.5rem;
+          margin-top: 0.2rem;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 0.7rem;
-          box-shadow: 0 4px 15px rgba(45, 90, 140, 0.2);
+          gap: 0.4rem;
+          box-shadow: 0 3px 10px rgba(45, 90, 140, 0.2);
         }
-        
+
         .signup-btn:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(45, 90, 140, 0.3);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(45, 90, 140, 0.3);
         }
-        
+
         .signup-btn:active:not(:disabled) {
           transform: translateY(0);
         }
-        
+
         .signup-btn:disabled {
           opacity: 0.7;
           cursor: not-allowed;
           transform: none;
         }
-        
+
         .signup-btn.loading {
           background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
         }
-        
+
         .signin-redirect {
           text-align: center;
-          margin: 1.5rem 0;
-          padding: 1rem;
+          margin: 0.6rem 0;
+          padding: 0.5rem;
           background: #f8f9fa;
-          border-radius: 6px;
+          border-radius: 4px;
           color: #6c757d;
+          font-size: 0.75rem;
         }
-        
+
         .signin-redirect a {
           color: #2d5a8c;
           text-decoration: none;
           font-weight: 500;
           transition: color 0.3s;
         }
-        
+
         .signin-redirect a:hover {
           color: #3a7bd5;
           text-decoration: underline;
         }
-        
+
         .lawyer-redirect {
-          margin-top: 1rem;
+          margin-top: 0.5rem;
         }
-        
+
         .divider {
           display: flex;
           align-items: center;
           text-align: center;
-          margin: 1.5rem 0;
+          margin: 0.6rem 0;
           color: #6c757d;
-          font-size: 0.9rem;
+          font-size: 0.7rem;
         }
-        
+
         .divider::before,
         .divider::after {
-          content: '';
+          content: "";
           flex: 1;
           border-bottom: 1px solid #e9ecef;
         }
-        
+
         .divider span {
-          padding: 0 1rem;
+          padding: 0 0.6rem;
         }
-        
+
         .lawyer-btn {
           width: 100%;
-          padding: 0.9rem;
+          padding: 0.5rem;
           background: transparent;
           color: #2d5a8c;
-          border: 2px solid #2d5a8c;
-          border-radius: 6px;
-          font-size: 1rem;
+          border: 1.5px solid #2d5a8c;
+          border-radius: 4px;
+          font-size: 0.75rem;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s ease;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 0.5rem;
+          gap: 0.4rem;
         }
-        
+
         .lawyer-btn:hover:not(:disabled) {
           background: #2d5a8c;
           color: white;
           transform: translateY(-1px);
         }
-        
+
         .lawyer-btn:disabled {
           opacity: 0.5;
           cursor: not-allowed;
         }
-        
+
         .fa-spin {
           animation: fa-spin 1s infinite linear;
         }
-        
+
         @keyframes fa-spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
-        
+
         @media (max-width: 968px) {
           .name-fields {
             grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
           }
-          
+
           .password-fields {
             grid-template-columns: 1fr;
+            gap: 0.5rem;
           }
         }
-        
+
         @media (max-width: 768px) {
           .user-signup-content {
             grid-template-columns: 1fr;
-            max-width: 500px;
+            max-width: 380px;
           }
-          
+
           .signup-intro {
-            padding: 2rem;
+            padding: 1rem;
             text-align: center;
           }
-          
+
           .signup-form-wrapper {
-            padding: 2rem;
+            padding: 1rem;
           }
-          
+
           .name-fields {
             grid-template-columns: 1fr;
           }
         }
-        
+
         @media (max-width: 480px) {
           .user-signup-container {
-            padding: 1rem;
+            padding: 0.5rem;
           }
-          
-          .signup-intro, .signup-form-wrapper {
-            padding: 1.5rem;
+
+          .signup-intro,
+          .signup-form-wrapper {
+            padding: 0.8rem;
           }
-          
+
           .signup-intro h1 {
-            font-size: 1.8rem;
+            font-size: 1.3rem;
           }
         }
       `}</style>
-      
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      />
     </div>
   );
 };

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { format, parseISO, isToday, isTomorrow } from 'date-fns';
-import { Link } from 'react-router';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { format, parseISO, isToday, isTomorrow } from "date-fns";
+import { Link } from "react-router";
 
 const DisplayAvailability = () => {
   const [availabilities, setAvailabilities] = useState([]);
@@ -17,25 +17,26 @@ const DisplayAvailability = () => {
   const fetchAvailabilities = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/availableDate/getAvailableDate`, 
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/availableDate/getAvailableDate`,
         {
-          withCredentials: true
-        }
+          withCredentials: true,
+        },
       );
-      
+
       if (response.status === 200) {
-        const filteredAvailabilities = showAll 
-          ? response.data 
-          : response.data.filter(avail => {
+        const filteredAvailabilities = showAll
+          ? response.data
+          : response.data.filter((avail) => {
               const availDate = new Date(avail.availableDate);
               return availDate.toDateString() === selectedDate.toDateString();
             });
-        
+
         setAvailabilities(filteredAvailabilities);
       }
     } catch (error) {
-      console.error('Error fetching availabilities:', error);
-      setError('Failed to load availability data');
+      console.error("Error fetching availabilities:", error);
+      setError("Failed to load availability data");
     } finally {
       setLoading(false);
     }
@@ -44,46 +45,49 @@ const DisplayAvailability = () => {
   const formatDateDisplay = (dateString) => {
     try {
       const date = parseISO(dateString);
-      if (isToday(date)) return 'Today';
-      if (isTomorrow(date)) return 'Tomorrow';
-      return format(date, 'EEE, MMM d');
+      if (isToday(date)) return "Today";
+      if (isTomorrow(date)) return "Tomorrow";
+      return format(date, "EEE, MMM d");
     } catch (error) {
-      return 'Invalid date';
+      return "Invalid date";
     }
   };
 
   const deleteAvailability = async (id) => {
     try {
-      const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/availability/${id}`, {
-        withCredentials: true
-      });
-      
+      const response = await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/availability/${id}`,
+        {
+          withCredentials: true,
+        },
+      );
+
       if (response.status === 200) {
-        setAvailabilities(prev => prev.filter(a => a._id !== id));
+        setAvailabilities((prev) => prev.filter((a) => a._id !== id));
       }
     } catch (error) {
-      console.error('Error deleting availability:', error);
-      setError('Failed to delete availability');
+      console.error("Error deleting availability:", error);
+      setError("Failed to delete availability");
     }
   };
 
   const groupByDate = () => {
     const grouped = {};
-    
-    availabilities.forEach(availability => {
+
+    availabilities.forEach((availability) => {
       try {
-        const dateStr = availability.availableDate.split('T')[0];
-        
+        const dateStr = availability.availableDate.split("T")[0];
+
         if (!grouped[dateStr]) {
           grouped[dateStr] = [];
         }
-        
+
         grouped[dateStr].push(availability);
       } catch (error) {
-        console.error('Error grouping availability:', error);
+        console.error("Error grouping availability:", error);
       }
     });
-    
+
     return grouped;
   };
 
@@ -105,7 +109,7 @@ const DisplayAvailability = () => {
   return (
     <div className="availability-container">
       <div className="navigation-buttons">
-        <Link to={'/lawyerPage'}>
+        <Link to={"/lawyerPage"}>
           <button className="btn-back">
             <i className="fas fa-arrow-left"></i>
             Back to Dashboard
@@ -118,7 +122,7 @@ const DisplayAvailability = () => {
           <h2>Your Availability Schedule</h2>
           <p>Manage your available time slots for client appointments</p>
         </div>
-        <Link to={'/createAvailability'}>
+        <Link to={"/createAvailability"}>
           <button className="btn-primary">
             <i className="fas fa-plus"></i>
             Add Time Slot
@@ -140,7 +144,7 @@ const DisplayAvailability = () => {
               <input
                 id="date-picker"
                 type="date"
-                value={selectedDate.toISOString().split('T')[0]}
+                value={selectedDate.toISOString().split("T")[0]}
                 onChange={handleDateChange}
                 disabled={showAll}
               />
@@ -158,14 +162,16 @@ const DisplayAvailability = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="stats-card">
           <div className="stat-item">
             <div className="stat-number">{availabilities.length}</div>
             <div className="stat-label">Total Slots</div>
           </div>
           <div className="stat-item">
-            <div className="stat-number">{Object.keys(groupedAvailabilities).length}</div>
+            <div className="stat-number">
+              {Object.keys(groupedAvailabilities).length}
+            </div>
             <div className="stat-label">Days with Availability</div>
           </div>
         </div>
@@ -176,9 +182,9 @@ const DisplayAvailability = () => {
           <div className="empty-icon">
             <i className="fas fa-calendar-plus"></i>
           </div>
-          <h3>No availability set {!showAll ? 'for this date' : ''}</h3>
-          <p>Add your available time slots to start receiving appointments</p>
-          <Link to={'/createAvailability'}>
+          <h3>No availability set {!showAll ? "for today" : ""}</h3>
+          <p>Turn Show All Dates on to see all your availabilities</p>
+          <Link to={"/createAvailability"}>
             <button className="btn-primary">
               <i className="fas fa-plus"></i>
               Create Your First Availability
@@ -204,26 +210,30 @@ const DisplayAvailability = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="schedule-grid">
-            {Object.entries(groupedAvailabilities).map(([date, dateAvailabilities]) => (
-              <div key={date} className="schedule-day-card">
-                <div className="day-header">
-                  <h4>{formatDateDisplay(date)}</h4>
-                  <div className="slots-count">{dateAvailabilities.length} slot(s)</div>
+            {Object.entries(groupedAvailabilities).map(
+              ([date, dateAvailabilities]) => (
+                <div key={date} className="schedule-day-card">
+                  <div className="day-header">
+                    <h4>{formatDateDisplay(date)}</h4>
+                    <div className="slots-count">
+                      {dateAvailabilities.length} slot(s)
+                    </div>
+                  </div>
+
+                  <div className="time-slots-container">
+                    {dateAvailabilities.map((availability) => (
+                      <TimeSlot
+                        key={availability._id}
+                        availability={availability}
+                        onDelete={deleteAvailability}
+                      />
+                    ))}
+                  </div>
                 </div>
-                
-                <div className="time-slots-container">
-                  {dateAvailabilities.map(availability => (
-                    <TimeSlot 
-                      key={availability._id} 
-                      availability={availability} 
-                      onDelete={deleteAvailability}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
+              ),
+            )}
           </div>
         </div>
       )}
@@ -590,15 +600,19 @@ const DisplayAvailability = () => {
         }
 
         @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
 
         @media (max-width: 1024px) {
           .controls-section {
             grid-template-columns: 1fr;
           }
-          
+
           .stats-card {
             justify-content: space-around;
           }
@@ -608,33 +622,33 @@ const DisplayAvailability = () => {
           .availability-container {
             padding: 1rem;
           }
-          
+
           .availability-header {
             flex-direction: column;
             gap: 1rem;
             align-items: flex-start;
           }
-          
+
           .filter-controls {
             flex-direction: column;
             align-items: flex-start;
           }
-          
+
           .schedule-grid {
             grid-template-columns: 1fr;
           }
-          
+
           .schedule-header {
             flex-direction: column;
             align-items: flex-start;
             gap: 1rem;
           }
-          
+
           .time-legend {
             flex-direction: column;
             gap: 0.5rem;
           }
-          
+
           .stats-card {
             flex-direction: column;
             gap: 1rem;
@@ -642,18 +656,21 @@ const DisplayAvailability = () => {
           }
         }
       `}</style>
-      
+
       {/* Add Font Awesome for icons */}
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      />
     </div>
   );
 };
 
 const TimeSlot = ({ availability, onDelete }) => {
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this time slot?')) {
+    if (window.confirm("Are you sure you want to delete this time slot?")) {
       setIsDeleting(true);
       await onDelete(availability._id);
       setIsDeleting(false);
@@ -662,42 +679,52 @@ const TimeSlot = ({ availability, onDelete }) => {
 
   const getColorForTime = (startTime) => {
     try {
-      const hour = parseInt(startTime.split(':')[0]);
+      const hour = parseInt(startTime.split(":")[0]);
 
       if (hour >= 6 && hour < 12) {
-        return '#4a6580';
+        return "#4a6580";
       } else if (hour >= 12 && hour < 17) {
-        return '#2e7d32';
+        return "#2e7d32";
       } else {
-        return '#6a1b9a';
+        return "#6a1b9a";
       }
     } catch (error) {
-      return '#4a6580';
+      return "#4a6580";
     }
   };
 
   const timeColor = getColorForTime(availability.startTime);
-  const timePeriod = timeColor === '#4a6580' ? 'morning' : timeColor === '#2e7d32' ? 'afternoon' : 'evening';
+  const timePeriod =
+    timeColor === "#4a6580"
+      ? "morning"
+      : timeColor === "#2e7d32"
+        ? "afternoon"
+        : "evening";
 
   return (
-    <div className="time-slot-card" style={{ borderLeft: `3px solid ${timeColor}` }}>
+    <div
+      className="time-slot-card"
+      style={{ borderLeft: `3px solid ${timeColor}` }}
+    >
       <div className="time-slot-content">
         <div className="time-display">
           <div className="time-range">
             <i className="fas fa-clock" style={{ color: timeColor }}></i>
-            <span className="time-text">{availability.startTime} - {availability.endTime}</span>
+            <span className="time-text">
+              {availability.startTime} - {availability.endTime}
+            </span>
           </div>
           <div className="time-duration">
             {calculateDuration(availability.startTime, availability.endTime)}
           </div>
         </div>
-        
+
         <div className="time-meta">
           <div className="time-period-badge">
             <span className={`period-dot ${timePeriod}`}></span>
             {timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)}
           </div>
-          <button 
+          <button
             className="delete-time-btn"
             onClick={handleDelete}
             disabled={isDeleting}
@@ -820,7 +847,7 @@ const TimeSlot = ({ availability, onDelete }) => {
             align-items: flex-start;
             gap: 0.75rem;
           }
-          
+
           .time-meta {
             align-self: flex-end;
           }
@@ -860,25 +887,18 @@ const LoadingAvailability = () => {
           <div className="filter-controls">
             <div className="date-input-group">
               <label htmlFor="date-picker">Select Date:</label>
-              <input
-                id="date-picker"
-                type="date"
-                disabled
-              />
+              <input id="date-picker" type="date" disabled />
             </div>
             <div className="toggle-group">
               <label className="toggle-label">
-                <input
-                  type="checkbox"
-                  disabled
-                />
+                <input type="checkbox" disabled />
                 <span className="toggle-slider"></span>
                 Show All Dates
               </label>
             </div>
           </div>
         </div>
-        
+
         <div className="stats-card">
           <div className="stat-item">
             <div className="stat-number">-</div>
@@ -1094,15 +1114,19 @@ const LoadingAvailability = () => {
         }
 
         @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
 
         @media (max-width: 1024px) {
           .controls-section {
             grid-template-columns: 1fr;
           }
-          
+
           .stats-card {
             justify-content: space-around;
           }
@@ -1112,18 +1136,18 @@ const LoadingAvailability = () => {
           .availability-container {
             padding: 1rem;
           }
-          
+
           .availability-header {
             flex-direction: column;
             gap: 1rem;
             align-items: flex-start;
           }
-          
+
           .filter-controls {
             flex-direction: column;
             align-items: flex-start;
           }
-          
+
           .stats-card {
             flex-direction: column;
             gap: 1rem;
@@ -1131,25 +1155,28 @@ const LoadingAvailability = () => {
           }
         }
       `}</style>
-      
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      />
     </div>
   );
 };
 
 const calculateDuration = (startTime, endTime) => {
   try {
-    const [startHour, startMinute] = startTime.split(':').map(Number);
-    const [endHour, endMinute] = endTime.split(':').map(Number);
-    
+    const [startHour, startMinute] = startTime.split(":").map(Number);
+    const [endHour, endMinute] = endTime.split(":").map(Number);
+
     let hours = endHour - startHour;
     let minutes = endMinute - startMinute;
-    
+
     if (minutes < 0) {
       hours -= 1;
       minutes += 60;
     }
-    
+
     if (hours === 0) {
       return `${minutes} min`;
     } else if (minutes === 0) {

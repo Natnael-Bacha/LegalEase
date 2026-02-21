@@ -1,43 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router";
+import axios from "axios";
 
 const CreateCase = () => {
   const [formData, setFormData] = useState({
-    caseTitle: '',
-    caseDiscription: '',
-    caseType: '',
-    appointmentTime: '',
-    caseFile: null
+    caseTitle: "",
+    caseDiscription: "",
+    caseType: "",
+    appointmentTime: "",
+    caseFile: null,
   });
   const [filePreview, setFilePreview] = useState(null);
-  const [fileName, setFileName] = useState('');
+  const [fileName, setFileName] = useState("");
   const [availableTimes, setAvailableTimes] = useState([]);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingTimes, setIsLoadingTimes] = useState(false);
   const [activeStep, setActiveStep] = useState(1);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const lawyerId = location.state?.lawyerId;
 
   const verifyAuth = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/clientAuth/verifyUser`, {
-        withCredentials: true
-      });
-      
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/clientAuth/verifyUser`,
+        {
+          withCredentials: true,
+        },
+      );
+
       if (response.data.status === true) {
-        console.log("User Is Authenticated!!!!")
+        console.log("User Is Authenticated!!!!");
         setIsAuthenticated(true);
         return true;
       }
     } catch (error) {
-      console.error('Auth verification failed:', error);
-      setError('Authentication failed. Please sign in again.');
+      console.error("Auth verification failed:", error);
+      setError("Authentication failed. Please sign in again.");
       setIsAuthenticated(false);
       return false;
     }
@@ -47,9 +50,11 @@ const CreateCase = () => {
     const initializePage = async () => {
       const authValid = await verifyAuth();
       if (!authValid) return;
-      
+
       if (!lawyerId) {
-        setError('No lawyer selected. Please go back and select a lawyer first.');
+        setError(
+          "No lawyer selected. Please go back and select a lawyer first.",
+        );
         return;
       }
 
@@ -62,58 +67,61 @@ const CreateCase = () => {
   const fetchAvailableTimes = async () => {
     setIsLoadingTimes(true);
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/availableDate/getAvailableDateForUser`, {
-         params: { lawyerId },
-        withCredentials: true 
-      });
-      
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/availableDate/getAvailableDateForUser`,
+        {
+          params: { lawyerId },
+          withCredentials: true,
+        },
+      );
+
       setAvailableTimes(response.data);
     } catch (error) {
       if (error.response?.status === 401 || error.response?.status === 403) {
-        setError('Your session has expired. Please sign in again.');
+        setError("Your session has expired. Please sign in again.");
       } else {
-        setError('Failed to fetch available times. Please try again.');
+        setError("Failed to fetch available times. Please try again.");
       }
-      console.error('Error fetching available times:', error);
+      console.error("Error fetching available times:", error);
     } finally {
       setIsLoadingTimes(false);
     }
   };
 
   const handleChange = async (e) => {
-    if (e.target.name === 'caseFile') {
+    if (e.target.name === "caseFile") {
       const file = e.target.files[0];
       if (file) {
         // Check file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
-          setError('File size should be less than 5MB');
+          setError("File size should be less than 5MB");
           return;
         }
-        
+
         // Check file type
         const allowedTypes = [
-          'application/pdf', 
-          'image/jpeg', 
-          'image/png', 
-          'application/msword',
-          'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          "application/pdf",
+          "image/jpeg",
+          "image/png",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         ];
-        
+
         if (!allowedTypes.includes(file.type)) {
-          setError('Please upload a PDF, DOC, DOCX, JPEG, or PNG file');
+          setError("Please upload a PDF, DOC, DOCX, JPEG, or PNG file");
           return;
         }
-        
+
         setFileName(file.name);
         const base64 = await convertToBase64(file);
-        
+
         setFormData({
           ...formData,
           caseFile: base64,
         });
-        
+
         // Create preview for images
-        if (file.type.includes('image')) {
+        if (file.type.includes("image")) {
           const reader = new FileReader();
           reader.onloadend = () => {
             setFilePreview(reader.result);
@@ -122,54 +130,58 @@ const CreateCase = () => {
         } else {
           setFilePreview(null);
         }
-        
-        setError(''); // Clear any previous errors
+
+        setError(""); // Clear any previous errors
       }
     } else {
       setFormData({
         ...formData,
-        [e.target.name]: e.target.value
+        [e.target.name]: e.target.value,
       });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!isAuthenticated) {
-      setError('You are not authenticated. Please sign in again.');
+      setError("You are not authenticated. Please sign in again.");
       return;
     }
-    
+
     if (!lawyerId) {
-      setError('No lawyer selected. Please go back and select a lawyer first.');
+      setError("No lawyer selected. Please go back and select a lawyer first.");
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/cases/createCase`, 
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/cases/createCase`,
         {
           ...formData,
-          lawyerId: lawyerId
+          lawyerId: lawyerId,
         },
         {
-          withCredentials: true 
-        }
+          withCredentials: true,
+        },
       );
-      
+
       if (response.status === 201) {
-        setSuccess('Case created successfully!');
+        setSuccess("Case created successfully!");
         setTimeout(() => {
-          navigate('/displayUserCases'); 
+          navigate("/displayUserCases");
         }, 1500);
       }
     } catch (error) {
       if (error.response?.status === 401 || error.response?.status === 403) {
-        setError('Your session has expired. Please sign in again.');
+        setError("Your session has expired. Please sign in again.");
       } else {
-        setError(error.response?.data?.message || 'Case creation failed. Please try again.');
+        setError(
+          error.response?.data?.message ||
+            "Case creation failed. Please try again.",
+        );
       }
     } finally {
       setIsLoading(false);
@@ -177,52 +189,57 @@ const CreateCase = () => {
   };
 
   const nextStep = () => {
-    setActiveStep(prev => prev + 1);
+    setActiveStep((prev) => prev + 1);
   };
 
   const prevStep = () => {
-    setActiveStep(prev => prev - 1);
+    setActiveStep((prev) => prev - 1);
   };
 
   const formatDate = (dateString) => {
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const options = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   const formatTime = (timeString) => {
-    const [hours, minutes] = timeString.split(':');
+    const [hours, minutes] = timeString.split(":");
     const hour = parseInt(hours);
-    return `${hour > 12 ? hour - 12 : hour}:${minutes} ${hour >= 12 ? 'PM' : 'AM'}`;
+    return `${hour > 12 ? hour - 12 : hour}:${minutes} ${hour >= 12 ? "PM" : "AM"}`;
   };
 
   const handleSignOut = async () => {
     try {
       await axios.post(`${import.meta.env.VITE_BACKEND_URL}/clientAuth/logout`);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     } finally {
       setIsAuthenticated(false);
-      navigate('/userSignin');
+      navigate("/userSignin");
     }
   };
 
   const removeFile = () => {
     setFormData({
       ...formData,
-      caseFile: null
+      caseFile: null,
     });
     setFilePreview(null);
-    setFileName('');
+    setFileName("");
   };
 
-  if (!isAuthenticated && error.includes('Authentication')) {
+  if (!isAuthenticated && error.includes("Authentication")) {
     return (
       <div className="auth-error-container">
         <div className="auth-error-card">
           <i className="fas fa-exclamation-triangle"></i>
           <h2>Authentication Required</h2>
           <p>{error}</p>
-          <button className="sign-in-btn" onClick={() => navigate('/signin')}>
+          <button className="sign-in-btn" onClick={() => navigate("/signin")}>
             Sign In Again
           </button>
         </div>
@@ -234,8 +251,11 @@ const CreateCase = () => {
     <div className="create-case-modern-container">
       <div className="create-case-modern-card">
         <div className="case-header">
-                    <div className="header-buttons">
-            <button className="back-dashboard-btn" onClick={() => navigate('/userPage')}>
+          <div className="header-buttons">
+            <button
+              className="back-dashboard-btn"
+              onClick={() => navigate("/userPage")}
+            >
               <i className="fas fa-arrow-left"></i> Back to Dashboard
             </button>
             <button className="sign-out-btn" onClick={handleSignOut}>
@@ -253,15 +273,15 @@ const CreateCase = () => {
 
         <div className="progress-container">
           <div className="progress-bar">
-            <div className={`progress-step ${activeStep >= 1 ? 'active' : ''}`}>
+            <div className={`progress-step ${activeStep >= 1 ? "active" : ""}`}>
               <span>1</span>
               <div className="step-label">Basic Info</div>
             </div>
-            <div className={`progress-step ${activeStep >= 2 ? 'active' : ''}`}>
+            <div className={`progress-step ${activeStep >= 2 ? "active" : ""}`}>
               <span>2</span>
               <div className="step-label">Details</div>
             </div>
-            <div className={`progress-step ${activeStep >= 3 ? 'active' : ''}`}>
+            <div className={`progress-step ${activeStep >= 3 ? "active" : ""}`}>
               <span>3</span>
               <div className="step-label">Schedule</div>
             </div>
@@ -272,8 +292,11 @@ const CreateCase = () => {
           <div className="error-message-modern">
             <i className="fas fa-exclamation-circle"></i>
             {error}
-            {(error.includes('authenticated') || error.includes('session')) && (
-              <button className="sign-in-again-btn" onClick={() => navigate('/signin')}>
+            {(error.includes("authenticated") || error.includes("session")) && (
+              <button
+                className="sign-in-again-btn"
+                onClick={() => navigate("/signin")}
+              >
                 Sign In Again
               </button>
             )}
@@ -304,7 +327,7 @@ const CreateCase = () => {
                   placeholder="Enter a descriptive case title"
                 />
               </div>
-              
+
               <div className="input-group-modern">
                 <label htmlFor="caseType">Case Type *</label>
                 <select
@@ -321,11 +344,13 @@ const CreateCase = () => {
                   <option value="Family">Family</option>
                   <option value="Corporate">Corporate</option>
                   <option value="Real Estate">Real Estate</option>
-                  <option value="Intellectual Property">Intellectual Property</option>
+                  <option value="Intellectual Property">
+                    Intellectual Property
+                  </option>
                   <option value="Other">Other</option>
                 </select>
               </div>
-              
+
               <div className="form-navigation">
                 <button type="button" className="next-btn" onClick={nextStep}>
                   Next <i className="fas fa-arrow-right"></i>
@@ -333,7 +358,7 @@ const CreateCase = () => {
               </div>
             </div>
           )}
-          
+
           {activeStep === 2 && (
             <div className="form-step">
               <h2>Case Details</h2>
@@ -350,9 +375,9 @@ const CreateCase = () => {
                   rows="5"
                 />
               </div>
-              
+
               <div className="input-group-modern">
-                <label htmlFor="caseFile">Upload Case File (Optional)</label>
+                <label htmlFor="caseFile">Upload Case File *</label>
                 <div className="file-upload-container">
                   {!formData.caseFile ? (
                     <div className="file-upload-area">
@@ -383,8 +408,8 @@ const CreateCase = () => {
                           <span>{fileName}</span>
                         </div>
                       )}
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="remove-file-btn"
                         onClick={removeFile}
                         disabled={isLoading}
@@ -395,7 +420,7 @@ const CreateCase = () => {
                   )}
                 </div>
               </div>
-              
+
               <div className="form-navigation">
                 <button type="button" className="prev-btn" onClick={prevStep}>
                   <i className="fas fa-arrow-left"></i> Back
@@ -406,11 +431,11 @@ const CreateCase = () => {
               </div>
             </div>
           )}
-          
+
           {activeStep === 3 && (
             <div className="form-step">
               <h2>Select Appointment Time</h2>
-              
+
               {isLoadingTimes ? (
                 <div className="loading-times">
                   <i className="fas fa-spinner fa-spin"></i>
@@ -420,18 +445,16 @@ const CreateCase = () => {
                 <div className="no-available-times">
                   <i className="fas fa-calendar-times"></i>
                   <p>No available times found for this lawyer.</p>
-                  <button 
-                    type="button" 
-                    className="prev-btn"
-                    onClick={prevStep}
-                  >
+                  <button type="button" className="prev-btn" onClick={prevStep}>
                     <i className="fas fa-arrow-left"></i> Back to Details
                   </button>
                 </div>
               ) : (
                 <>
                   <div className="input-group-modern">
-                    <label htmlFor="appointmentTime">Select Available Time *</label>
+                    <label htmlFor="appointmentTime">
+                      Select Available Time *
+                    </label>
                     <select
                       id="appointmentTime"
                       name="appointmentTime"
@@ -443,18 +466,24 @@ const CreateCase = () => {
                       <option value="">Select a time slot</option>
                       {availableTimes.map((slot) => (
                         <option key={slot._id} value={slot._id}>
-                          {formatDate(slot.availableDate)} - {formatTime(slot.startTime)} to {formatTime(slot.endTime)}
+                          {formatDate(slot.availableDate)} -{" "}
+                          {formatTime(slot.startTime)} to{" "}
+                          {formatTime(slot.endTime)}
                         </option>
                       ))}
                     </select>
                   </div>
-                  
+
                   <div className="form-navigation">
-                    <button type="button" className="prev-btn" onClick={prevStep}>
+                    <button
+                      type="button"
+                      className="prev-btn"
+                      onClick={prevStep}
+                    >
                       <i className="fas fa-arrow-left"></i> Back
                     </button>
-                    <button 
-                      type="submit" 
+                    <button
+                      type="submit"
                       className="create-case-btn-modern"
                       disabled={isLoading}
                     >
@@ -487,33 +516,33 @@ const CreateCase = () => {
           background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
           padding: 2rem;
         }
-        
+
         .auth-error-card {
           background: white;
           padding: 2.5rem;
           border-radius: 16px;
-          box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
           text-align: center;
           max-width: 500px;
           width: 100%;
         }
-        
+
         .auth-error-card i {
           font-size: 3rem;
           color: #c53030;
           margin-bottom: 1rem;
         }
-        
+
         .auth-error-card h2 {
           color: #2c3e50;
           margin-bottom: 1rem;
         }
-        
+
         .auth-error-card p {
           color: #7b8a9b;
           margin-bottom: 1.5rem;
         }
-        
+
         .sign-in-btn {
           background: #4a6580;
           color: white;
@@ -525,11 +554,11 @@ const CreateCase = () => {
           cursor: pointer;
           transition: all 0.3s ease;
         }
-        
+
         .sign-in-btn:hover {
           background: #3a556c;
         }
-        
+
         .create-case-modern-container {
           min-height: 100vh;
           display: flex;
@@ -537,32 +566,32 @@ const CreateCase = () => {
           justify-content: center;
           background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
           padding: 2rem;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         .create-case-modern-card {
           max-width: 700px;
           width: 100%;
           background: white;
           border-radius: 16px;
           overflow: hidden;
-          box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
           padding: 2.5rem;
           position: relative;
         }
-        
+
         .case-header {
           text-align: center;
           margin-bottom: 2rem;
           position: relative;
         }
-        
+
         .header-buttons {
           display: flex;
           justify-content: space-between;
           margin-bottom: 1.5rem;
         }
-        
+
         .back-dashboard-btn {
           background: #f8f9fa;
           color: #4a6580;
@@ -576,11 +605,11 @@ const CreateCase = () => {
           align-items: center;
           gap: 0.5rem;
         }
-        
+
         .back-dashboard-btn:hover {
           background: #e9ecef;
         }
-        
+
         .sign-out-btn {
           background: #f8f9fa;
           color: #4a6580;
@@ -594,11 +623,11 @@ const CreateCase = () => {
           align-items: center;
           gap: 0.5rem;
         }
-        
+
         .sign-out-btn:hover {
           background: #e9ecef;
         }
-        
+
         .logo {
           display: flex;
           align-items: center;
@@ -608,37 +637,37 @@ const CreateCase = () => {
           font-weight: bold;
           color: #2c3e50;
         }
-        
+
         .logo i {
           margin-right: 0.5rem;
           font-size: 1.8rem;
           color: #4a6580;
         }
-        
+
         .case-header h1 {
           font-size: 2rem;
           margin-bottom: 0.5rem;
           color: #2c3e50;
         }
-        
+
         .case-header p {
           color: #7b8a9b;
           font-size: 1.1rem;
         }
-        
+
         .progress-container {
           margin-bottom: 2.5rem;
         }
-        
+
         .progress-bar {
           display: flex;
           justify-content: space-between;
           position: relative;
           margin-bottom: 1.5rem;
         }
-        
+
         .progress-bar::before {
-          content: '';
+          content: "";
           position: absolute;
           top: 20px;
           left: 0;
@@ -647,9 +676,9 @@ const CreateCase = () => {
           background: #e9ecef;
           z-index: 1;
         }
-        
+
         .progress-bar::after {
-          content: '';
+          content: "";
           position: absolute;
           top: 20px;
           left: 0;
@@ -659,7 +688,7 @@ const CreateCase = () => {
           transition: width 0.3s ease;
           z-index: 2;
         }
-        
+
         .progress-step {
           display: flex;
           flex-direction: column;
@@ -667,7 +696,7 @@ const CreateCase = () => {
           position: relative;
           z-index: 3;
         }
-        
+
         .progress-step span {
           display: flex;
           align-items: center;
@@ -681,23 +710,23 @@ const CreateCase = () => {
           margin-bottom: 0.5rem;
           transition: all 0.3s ease;
         }
-        
+
         .progress-step.active span {
           background: #4a6580;
           color: white;
           box-shadow: 0 0 0 4px rgba(74, 101, 128, 0.2);
         }
-        
+
         .step-label {
           font-size: 0.85rem;
           color: #7b8a9b;
           font-weight: 500;
         }
-        
+
         .progress-step.active .step-label {
           color: #4a6580;
         }
-        
+
         .error-message-modern {
           background-color: #fee;
           color: #c53030;
@@ -710,7 +739,7 @@ const CreateCase = () => {
           border-left: 4px solid #c53030;
           flex-direction: column;
         }
-        
+
         .sign-in-again-btn {
           margin-top: 0.5rem;
           padding: 0.5rem 1rem;
@@ -720,7 +749,7 @@ const CreateCase = () => {
           border-radius: 4px;
           cursor: pointer;
         }
-        
+
         .success-message-modern {
           background-color: #f0fff4;
           color: #2f855a;
@@ -732,41 +761,47 @@ const CreateCase = () => {
           gap: 0.5rem;
           border-left: 4px solid #2f855a;
         }
-        
+
         .create-case-modern-form {
           display: flex;
           flex-direction: column;
         }
-        
+
         .form-step {
           animation: fadeIn 0.3s ease;
         }
-        
+
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
-        
+
         .form-step h2 {
           color: #2c3e50;
           margin-bottom: 1.5rem;
           font-size: 1.5rem;
           text-align: center;
         }
-        
+
         .input-group-modern {
           display: flex;
           flex-direction: column;
           margin-bottom: 1.5rem;
         }
-        
+
         .input-group-modern label {
           color: #2c3e50;
           margin-bottom: 0.5rem;
           font-weight: 500;
           font-size: 0.95rem;
         }
-        
+
         .input-group-modern input,
         .input-group-modern textarea,
         .input-group-modern select {
@@ -777,7 +812,7 @@ const CreateCase = () => {
           transition: all 0.3s ease;
           font-family: inherit;
         }
-        
+
         .input-group-modern input:focus,
         .input-group-modern textarea:focus,
         .input-group-modern select:focus {
@@ -785,19 +820,19 @@ const CreateCase = () => {
           border-color: #4a6580;
           box-shadow: 0 0 0 3px rgba(74, 101, 128, 0.1);
         }
-        
+
         .input-group-modern input:disabled,
         .input-group-modern textarea:disabled,
         .input-group-modern select:disabled {
           background-color: #f8f9fa;
           cursor: not-allowed;
         }
-        
+
         /* File Upload Styles */
         .file-upload-container {
           margin-top: 0.5rem;
         }
-        
+
         .file-upload-area {
           position: relative;
           border: 2px dashed #e9ecef;
@@ -806,12 +841,12 @@ const CreateCase = () => {
           text-align: center;
           transition: all 0.3s ease;
         }
-        
+
         .file-upload-area:hover {
           border-color: #4a6580;
           background-color: #f8f9fa;
         }
-        
+
         .file-input {
           position: absolute;
           width: 100%;
@@ -821,7 +856,7 @@ const CreateCase = () => {
           opacity: 0;
           cursor: pointer;
         }
-        
+
         .file-upload-label {
           display: flex;
           flex-direction: column;
@@ -829,23 +864,23 @@ const CreateCase = () => {
           gap: 0.5rem;
           cursor: pointer;
         }
-        
+
         .file-upload-label i {
           font-size: 2rem;
           color: #4a6580;
         }
-        
+
         .file-upload-label span {
           font-weight: 500;
           color: #2c3e50;
         }
-        
+
         .file-upload-label p {
           color: #7b8a9b;
           font-size: 0.85rem;
           margin: 0;
         }
-        
+
         .file-preview-container {
           display: flex;
           flex-direction: column;
@@ -856,20 +891,20 @@ const CreateCase = () => {
           border-radius: 8px;
           background-color: #f8f9fa;
         }
-        
+
         .image-preview {
           max-width: 200px;
           max-height: 200px;
           border-radius: 4px;
           overflow: hidden;
         }
-        
+
         .image-preview img {
           width: 100%;
           height: 100%;
           object-fit: contain;
         }
-        
+
         .file-info {
           display: flex;
           align-items: center;
@@ -879,17 +914,17 @@ const CreateCase = () => {
           border-radius: 4px;
           border: 1px solid #e9ecef;
         }
-        
+
         .file-info i {
           color: #4a6580;
           font-size: 1.2rem;
         }
-        
+
         .file-info span {
           font-weight: 500;
           color: #2c3e50;
         }
-        
+
         .remove-file-btn {
           background: #fee;
           color: #c53030;
@@ -903,36 +938,36 @@ const CreateCase = () => {
           gap: 0.5rem;
           transition: all 0.3s ease;
         }
-        
+
         .remove-file-btn:hover:not(:disabled) {
           background: #fdd;
         }
-        
+
         .remove-file-btn:disabled {
           opacity: 0.7;
           cursor: not-allowed;
         }
-        
+
         .loading-times,
         .no-available-times {
           text-align: center;
           padding: 2rem;
           color: #7b8a9b;
         }
-        
+
         .loading-times i,
         .no-available-times i {
           font-size: 2rem;
           margin-bottom: 1rem;
           display: block;
         }
-        
+
         .form-navigation {
           display: flex;
           justify-content: space-between;
           margin-top: 2rem;
         }
-        
+
         .prev-btn,
         .next-btn {
           padding: 0.8rem 1.5rem;
@@ -945,28 +980,28 @@ const CreateCase = () => {
           align-items: center;
           gap: 0.5rem;
         }
-        
+
         .prev-btn {
           background: #f8f9fa;
           color: #4a6580;
           border: 2px solid #e9ecef;
         }
-        
+
         .prev-btn:hover {
           background: #e9ecef;
         }
-        
+
         .next-btn {
           background: #4a6580;
           color: white;
           border: none;
         }
-        
+
         .next-btn:hover {
           background: #3a556c;
           box-shadow: 0 4px 12px rgba(74, 101, 128, 0.2);
         }
-        
+
         .create-case-btn-modern {
           background: linear-gradient(135deg, #4a6580 0%, #2c3e50 100%);
           color: white;
@@ -981,39 +1016,39 @@ const CreateCase = () => {
           justify-content: center;
           align-items: center;
           gap: 0.5rem;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        
+
         .create-case-btn-modern:hover:not(:disabled) {
           transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
         }
-        
+
         .create-case-btn-modern:disabled {
           opacity: 0.7;
           cursor: not-allowed;
           transform: none;
         }
-        
+
         @media (max-width: 768px) {
           .create-case-modern-card {
             padding: 1.5rem;
           }
-          
+
           .header-buttons {
             flex-direction: column;
             gap: 0.5rem;
           }
-          
+
           .progress-step .step-label {
             display: none;
           }
-          
+
           .form-navigation {
             flex-direction: column;
             gap: 1rem;
           }
-          
+
           .prev-btn,
           .next-btn,
           .create-case-btn-modern {
@@ -1023,22 +1058,25 @@ const CreateCase = () => {
         }
       `}</style>
 
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      />
     </div>
   );
 };
 
 export default CreateCase;
 
-function convertToBase64(file){
+function convertToBase64(file) {
   return new Promise((resolve, reject) => {
     const fileReader = new FileReader();
     fileReader.readAsDataURL(file);
     fileReader.onload = () => {
-      resolve(fileReader.result)
+      resolve(fileReader.result);
     };
     fileReader.onerror = (error) => {
-      reject(error)
-    }
-  })
+      reject(error);
+    };
+  });
 }
